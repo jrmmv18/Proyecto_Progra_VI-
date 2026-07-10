@@ -1,0 +1,239 @@
+﻿@{
+    ViewData["Title"] = "Panel principal";
+
+    string nombreCompleto =
+        User.FindFirst("NombreCompleto")?.Value
+        ?? User.Identity?.Name
+        ?? "Usuario";
+}
+
+<div class="header">
+
+    <div>
+
+        <h1>Panel principal</h1>
+
+        <p>
+            Bienvenido, <strong>@nombreCompleto</strong>.
+            Seleccione el módulo que desea administrar.
+        </p>
+
+    </div>
+
+</div>
+
+<h2 class="section-title">
+    Módulos del sistema
+</h2>
+
+<div class="modules-grid">
+
+    <!-- OBRAS -->
+    <a asp-controller="Obras"
+       asp-action="Index"
+       class="module-card">
+
+        <span class="module-number">
+            01
+        </span>
+
+        <h3>Obras</h3>
+
+        <p>
+            Registro y administración
+            de las obras de la galería.
+        </p>
+
+    </a>
+
+    <!-- ARTISTAS -->
+    <a asp-controller="Artistas"
+       asp-action="Index"
+       class="module-card">
+
+        <span class="module-number">
+            02
+        </span>
+
+        <h3>Artistas</h3>
+
+        <p>
+            Información y administración
+            de artistas registrados.
+        </p>
+
+    </a>
+
+    <!-- PROVEEDORES -->
+    <a asp-controller="Proveedores"
+       asp-action="Index"
+       class="module-card">
+
+        <span class="module-number">
+            03
+        </span>
+
+        <h3>Proveedores</h3>
+
+        <p>
+            Administración de proveedores
+            del inventario.
+        </p>
+
+    </a>
+
+    <!-- PRODUCTOS -->
+    <a asp-controller="Productos"
+       asp-action="Index"
+       class="module-card">
+
+        <span class="module-number">
+            04
+        </span>
+
+        <h3>Productos</h3>
+
+        <p>
+            Control de productos,
+            existencias y stock.
+        </p>
+
+    </a>
+
+    <!-- VISITAS -->
+    <div class="module-card disabled">
+
+        <span class="module-number">
+            05
+        </span>
+
+        <h3>Visitas</h3>
+
+        <p>
+            Módulo disponible
+            próximamente.
+        </p>
+
+    </div>
+
+    <!-- VENTAS -->
+    <div class="module-card disabled">
+
+        <span class="module-number">
+            06
+        </span>
+
+        <h3>Ventas</h3>
+
+        <p>
+            Módulo disponible
+            próximamente.
+        </p>
+
+    </div>
+
+    <!-- MANTENIMIENTO -->
+    <div class="module-card disabled">
+
+        <span class="module-number">
+            07
+        </span>
+
+        <h3>Mantenimiento</h3>
+
+        <p>
+            Módulo disponible
+            próximamente.
+        </p>
+
+    </div>
+
+</div>
+
+<div class="status-box">
+
+    <h3>Estado del sistema</h3>
+
+    <div class="status-grid">
+
+        <div class="status-item">
+
+            <span class="status-label">
+                Base de datos
+            </span>
+
+            <span class="status-success">
+                ● Conectada
+            </span>
+
+        </div>
+
+        <div class="status-item">
+
+            <span class="status-label">
+                Usuario
+            </span>
+
+            <span>
+                @User.Identity?.Name
+            </span>
+
+        </div>
+
+        <div class="status-item">
+
+            <span class="status-label">
+                Fecha
+            </span>
+
+            <span>
+                @DateTime.Now.ToString("dd/MM/yyyy")
+            </span>
+
+        </div>
+
+        <div class="status-item">
+
+            <span class="status-label">
+                Hora
+            </span>
+
+            <span>
+                @DateTime.Now.ToString("HH:mm")
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+               
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const tarjetasDeshabilitadas =
+                document.querySelectorAll(".module-card.disabled");
+
+            tarjetasDeshabilitadas.forEach(function (tarjeta) {
+
+                tarjeta.style.cursor = "not-allowed";
+
+                tarjeta.addEventListener("click", function (e) {
+
+                    e.preventDefault();
+
+                    alert("Este módulo estará disponible en una próxima versión.");
+
+                });
+
+            });
+
+        });
+
+    </script>
+
+}

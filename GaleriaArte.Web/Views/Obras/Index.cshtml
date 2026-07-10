@@ -1,0 +1,157 @@
+﻿@model List<GaleriaArte.Web.Models.Obra>
+
+@{
+    ViewData["Title"] = "Obras";
+}
+
+<div class="page-header page-header-actions">
+
+    <div>
+        <h1>Obras</h1>
+        <p>Administración de las obras registradas en la galería.</p>
+    </div>
+
+    <a asp-controller="Obras"
+       asp-action="Create"
+       class="btn-primary">
+        + Nueva obra
+    </a>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (Model.Count == 0)
+{
+    <div class="table-card">
+        <div class="empty">
+            No hay obras registradas.
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table obras-table">
+
+                <thead>
+                    <tr>
+                        <th>Obra</th>
+                        <th>Artista</th>
+                        <th>Categoría</th>
+                        <th>Fecha de creación</th>
+                        <th>Valor estimado</th>
+                        <th>Conservación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var obra in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <div class="obra-name">
+                                    @obra.Nombre
+                                </div>
+
+                                <div class="obra-code">
+                                    @obra.Codigo
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="artist-name">
+                                    @obra.NombreArtista
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="category-name">
+                                    @obra.NombreCategoria
+                                </div>
+                            </td>
+
+                            <td>
+                                @(obra.FechaCreacion?.ToString("dd/MM/yyyy")
+                                    ?? "No registrada")
+                            </td>
+
+                            <td>
+                                <div class="value">
+                                    ₡@obra.ValorEstimado.ToString("N2")
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="badge conservation">
+                                    @obra.EstadoConservacion
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (obra.Estado)
+                                {
+                                    <span class="badge status-active">
+                                        Activa
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-inactive">
+                                        Inactiva
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="table-actions">
+
+                                    <a asp-controller="Obras"
+                                       asp-action="Edit"
+                                       asp-route-id="@obra.IdObra"
+                                       class="btn-edit">
+                                        Editar
+                                    </a>
+
+                                    <form asp-controller="Obras"
+                                          asp-action="CambiarEstado"
+                                          asp-route-id="@obra.IdObra"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn-state">
+                                            @(obra.Estado
+                                                ? "Desactivar"
+                                                : "Activar")
+                                        </button>
+
+                                    </form>
+
+                                </div>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

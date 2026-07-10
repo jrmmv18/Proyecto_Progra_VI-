@@ -1,0 +1,266 @@
+﻿@model GaleriaArte.Web.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Iniciar sesión | Galería de Arte</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                font-family: "Segoe UI", Arial, sans-serif;
+                background:
+                    linear-gradient(
+                        135deg,
+                        rgba(20, 24, 32, 0.94),
+                        rgba(45, 32, 25, 0.90)
+                    );
+            }
+
+            .login-page {
+                min-height: 100vh;
+                display: flex;
+            }
+
+            .gallery-panel {
+                width: 55%;
+                padding: 70px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                color: white;
+            }
+
+            .brand {
+                font-size: 18px;
+                font-weight: 600;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            .gallery-content {
+                max-width: 600px;
+            }
+
+            .gallery-content h1 {
+                font-size: 58px;
+                font-weight: 700;
+                line-height: 1.05;
+                margin-bottom: 25px;
+            }
+
+            .gallery-content p {
+                font-size: 18px;
+                line-height: 1.7;
+                color: #dddddd;
+            }
+
+            .gallery-footer {
+                color: #bbbbbb;
+                font-size: 14px;
+            }
+
+            .login-panel {
+                width: 45%;
+                min-height: 100vh;
+                background: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 50px;
+            }
+
+            .login-box {
+                width: 100%;
+                max-width: 420px;
+            }
+
+            .login-box h2 {
+                font-size: 34px;
+                font-weight: 700;
+                color: #20242c;
+                margin-bottom: 10px;
+            }
+
+            .login-subtitle {
+                color: #777777;
+                margin-bottom: 35px;
+            }
+
+            .form-label {
+                font-weight: 600;
+                color: #333333;
+            }
+
+            .form-control {
+                height: 52px;
+                border-radius: 8px;
+            }
+
+            .btn-login {
+                width: 100%;
+                height: 52px;
+                margin-top: 15px;
+                border: none;
+                border-radius: 8px;
+                background: #252a34;
+                color: white;
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .btn-login:hover {
+                background: #11151b;
+                color: white;
+            }
+
+            .security-text {
+                margin-top: 25px;
+                text-align: center;
+                color: #999999;
+                font-size: 13px;
+            }
+
+            @@media (max-width: 850px) {
+
+                .gallery-panel {
+                    display: none;
+                }
+
+                .login-panel {
+                    width: 100%;
+                }
+            }
+
+    </style>
+
+</head>
+
+<body>
+
+    <main class="login-page">
+
+        <section class="gallery-panel">
+
+            <div class="brand">
+                Galería de Arte
+            </div>
+
+            <div class="gallery-content">
+
+                <h1>
+                    Arte, cultura<br />
+                    y gestión.
+                </h1>
+
+                <p>
+                    Sistema integral para la administración
+                    de obras, artistas, inventario, visitas,
+                    ventas y mantenimiento de la galería.
+                </p>
+
+            </div>
+
+            <div class="gallery-footer">
+                Sistema de Gestión de Galería de Arte
+            </div>
+
+        </section>
+
+
+        <section class="login-panel">
+
+            <div class="login-box">
+
+                <h2>Bienvenido</h2>
+
+                <p class="login-subtitle">
+                    Ingresa tus credenciales para acceder al sistema.
+                </p>
+
+                <form asp-controller="Account"
+                      asp-action="Login"
+                      method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"
+                         role="alert">
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="Usuario"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Usuario"
+                               class="form-control"
+                               placeholder="Ingresa tu usuario"
+                               autocomplete="username" />
+
+                        <span asp-validation-for="Usuario"
+                              class="text-danger small">
+                        </span>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="Password"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Password"
+                               class="form-control"
+                               placeholder="Ingresa tu contraseña"
+                               autocomplete="current-password" />
+
+                        <span asp-validation-for="Password"
+                              class="text-danger small">
+                        </span>
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-login">
+
+                        Iniciar sesión
+
+                    </button>
+
+                </form>
+
+                <div class="security-text">
+                    Acceso exclusivo para personal autorizado
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

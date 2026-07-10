@@ -1,0 +1,152 @@
+﻿@model GaleriaArte.Web.Models.Artista
+
+@{
+    ViewData["Title"] = "Editar artista";
+}
+
+<div class="page-header">
+    <h1>Editar artista</h1>
+    <p>Actualiza la información del artista en el sistema.</p>
+</div>
+
+<div class="form-card">
+
+    <form asp-action="Edit"
+          asp-route-id="@Model.IdArtista"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="IdArtista" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary">
+        </div>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label asp-for="Nombre"></label>
+
+                <input asp-for="Nombre"
+                       class="form-control"
+                       placeholder="Ingrese el nombre" />
+
+                <span asp-validation-for="Nombre"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Apellido"></label>
+
+                <input asp-for="Apellido"
+                       class="form-control"
+                       placeholder="Ingrese el apellido" />
+
+                <span asp-validation-for="Apellido"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Pais"></label>
+
+                <input asp-for="Pais"
+                       class="form-control"
+                       placeholder="Ingrese el país" />
+
+                <span asp-validation-for="Pais"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="FechaNacimiento"></label>
+
+                <input asp-for="FechaNacimiento"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="FechaNacimiento"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Correo"></label>
+
+                <input asp-for="Correo"
+                       class="form-control"
+                       placeholder="correo@ejemplo.com" />
+
+                <span asp-validation-for="Correo"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Telefono"></label>
+
+                <input asp-for="Telefono"
+                       class="form-control"
+                       placeholder="Ingrese el teléfono" />
+
+                <span asp-validation-for="Telefono"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group full">
+
+                <label asp-for="Biografia"></label>
+
+                <textarea asp-for="Biografia"
+                          class="form-control form-textarea"
+                          placeholder="Ingrese una breve biografía del artista">
+                </textarea>
+
+                <span asp-validation-for="Biografia"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a asp-action="Index"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="btn-primary">
+                Guardar cambios
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
