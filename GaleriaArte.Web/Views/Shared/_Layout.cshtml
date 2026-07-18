@@ -8,14 +8,8 @@
 
     <title>@ViewData["Title"] - Galería de Arte</title>
 
-    <!-- Estilo general existente -->
     <link rel="stylesheet"
           href="~/css/site.css"
-          asp-append-version="true" />
-
-    <!-- NUEVA ASOCIACIÓN: Tu archivo separado de estilos para el menú -->
-    <link rel="stylesheet" 
-          href="~/css/sidebar-hover.css" 
           asp-append-version="true" />
 </head>
 
@@ -29,13 +23,6 @@
 <div class="app">
 
     <aside class="sidebar">
-
-        <!-- Icono de 3 rayitas horizontales (Hamburguesa) -->
-        <div class="menu-trigger">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
 
         <div class="brand">
             GALERÍA DE ARTE
@@ -74,11 +61,16 @@
         </a>
 
       
-        <a asp-controller="Productos"
-           asp-action="Index"
-           class="menu-link @(controlador == "Productos" ? "active" : "")">
-            Productos
-        </a>
+    <a asp-controller="Productos"
+   asp-action="Index"
+   class="menu-link @(controlador == "Productos" ? "active" : "")">
+    Productos
+</a>
+
+
+
+
+
 
         <a asp-controller="Visitas"
            asp-action="Index"
@@ -139,18 +131,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
