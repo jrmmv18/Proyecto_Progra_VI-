@@ -8,28 +8,28 @@ using System.Security.Claims;
 
 namespace GaleriaArte.Web.Controllers
 {
-    [Authorize]
-    public class ProductosController : Controller
+    [Authorize(Roles = "Administrador")]
+    public class UsuariosController : Controller
     {
-        private readonly ProductoRepository _productoRepository;
+        private readonly UsuarioRepository _usuarioRepository;
 
-        public ProductosController(
-            ProductoRepository productoRepository)
+        public UsuariosController(
+            UsuarioRepository usuarioRepository)
         {
-            _productoRepository = productoRepository;
+            _usuarioRepository = usuarioRepository;
         }
 
         // =====================================================
-        // LISTAR PRODUCTOS
+        // LISTAR USUARIOS
         // =====================================================
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            List<Producto> productos =
-                await _productoRepository.ObtenerTodosAsync();
+            List<Usuario> usuarios =
+                await _usuarioRepository.ListarAsync();
 
-            return View(productos);
+            return View(usuarios);
         }
 
         // =====================================================
@@ -39,64 +39,84 @@ namespace GaleriaArte.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await CargarProveedoresAsync();
+            await CargarRolesAsync();
 
-            return View(new Producto
+            return View(new Usuario
             {
                 Estado = true
             });
         }
 
         // =====================================================
-        // GUARDAR NUEVO PRODUCTO
+        // GUARDAR NUEVO USUARIO
         // =====================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Producto producto)
+        public async Task<IActionResult> Create(Usuario usuario)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(usuario.Password))
             {
-                await CargarProveedoresAsync(producto.IdProveedor);
-
-                return View(producto);
+                ModelState.AddModelError(
+                    nameof(usuario.Password),
+                    "La contraseña es obligatoria.");
             }
 
-            int idUsuario = ObtenerIdUsuario();
+            if (!ModelState.IsValid)
+            {
+                await CargarRolesAsync(usuario.IdRol);
+
+                return View(usuario);
+            }
 
             try
             {
-                await _productoRepository.CrearAsync(
-                    producto,
-                    idUsuario);
+                usuario.PasswordHash =
+                    PasswordHasher.HashPassword(
+                        usuario.Password!);
+
+                bool creado =
+                    await _usuarioRepository.CrearAsync(
+                        usuario,
+                        ObtenerIdUsuario());
+
+                if (!creado)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "No fue posible registrar el usuario.");
+
+                    await CargarRolesAsync(usuario.IdRol);
+
+                    return View(usuario);
+                }
 
                 TempData["Mensaje"] =
-                    "Producto registrado correctamente.";
+                    "Usuario registrado correctamente.";
 
                 return RedirectToAction(nameof(Index));
             }
             catch (SqlException ex)
             {
-                await CargarProveedoresAsync(producto.IdProveedor);
+                await CargarRolesAsync(usuario.IdRol);
 
                 ModelState.AddModelError(
                     string.Empty,
                     ex.Message);
 
-                return View(producto);
+                return View(usuario);
             }
             catch (Exception)
             {
-                await CargarProveedoresAsync(producto.IdProveedor);
+                await CargarRolesAsync(usuario.IdRol);
 
                 ModelState.AddModelError(
                     string.Empty,
-                    "Ocurrió un error inesperado al registrar el producto.");
+                    "Ocurrió un error inesperado al registrar el usuario.");
 
-                return View(producto);
+                return View(usuario);
             }
         }
-
 
         // =====================================================
         // MOSTRAR FORMULARIO DE EDICIÓN
@@ -105,25 +125,22 @@ namespace GaleriaArte.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            Producto? producto =
-                await _productoRepository.ObtenerPorIdAsync(id);
+            Usuario? usuario =
+                await _usuarioRepository.ObtenerPorIdAsync(id);
 
-            if (producto == null)
+            if (usuario == null)
             {
                 return NotFound();
             }
 
-            await CargarProveedoresAsync(producto.IdProveedor);
+            // Nunca enviar el hash a la vista
+            usuario.Password = string.Empty;
+            usuario.PasswordHash = string.Empty;
 
-            return View(producto);
+            await CargarRolesAsync(usuario.IdRol);
+
+            return View(usuario);
         }
-
-
-
-
-
-
-
         // =====================================================
         // GUARDAR CAMBIOS
         // =====================================================
@@ -132,29 +149,41 @@ namespace GaleriaArte.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            Producto producto)
+            Usuario usuario)
         {
-            if (id != producto.IdProducto)
+            if (id != usuario.IdUsuario)
             {
                 return BadRequest();
             }
 
             if (!ModelState.IsValid)
             {
-                await CargarProveedoresAsync(producto.IdProveedor);
+                await CargarRolesAsync(usuario.IdRol);
 
-                return View(producto);
+                return View(usuario);
             }
-
-            int idUsuario = ObtenerIdUsuario();
 
             try
             {
+                // Si se escribió una nueva contraseña,
+                // se genera un nuevo hash.
+                if (!string.IsNullOrWhiteSpace(usuario.Password))
+                {
+                    usuario.PasswordHash =
+                        PasswordHasher.HashPassword(
+                            usuario.Password);
+                }
+                else
+                {
+                    // El procedimiento almacenado conservará
+                    // el hash actual.
+                    usuario.PasswordHash = string.Empty;
+                }
+
                 bool actualizado =
-                    await _productoRepository.ActualizarAsync(
-                        producto,
-                        idUsuario
-                    );
+                    await _usuarioRepository.ActualizarAsync(
+                        usuario,
+                        ObtenerIdUsuario());
 
                 if (!actualizado)
                 {
@@ -162,32 +191,34 @@ namespace GaleriaArte.Web.Controllers
                 }
 
                 TempData["Mensaje"] =
-                    "Producto actualizado correctamente.";
+                    "Usuario actualizado correctamente.";
 
                 return RedirectToAction(nameof(Index));
             }
             catch (SqlException ex)
             {
-                await CargarProveedoresAsync(producto.IdProveedor);
-
-                ModelState.AddModelError(string.Empty, ex.Message);
-
-                return View(producto);
-            }
-            catch (Exception)
-            {
-                await CargarProveedoresAsync(producto.IdProveedor);
+                await CargarRolesAsync(usuario.IdRol);
 
                 ModelState.AddModelError(
                     string.Empty,
-                    "Ocurrió un error inesperado al actualizar el producto."
-                );
+                    ex.Message);
 
-                return View(producto);
+                return View(usuario);
+            }
+            catch (Exception)
+            {
+                await CargarRolesAsync(usuario.IdRol);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ocurrió un error inesperado al actualizar el usuario.");
+
+                return View(usuario);
             }
         }
+
         // =====================================================
-        // ACTIVAR / DESACTIVAR PRODUCTO
+        // ACTIVAR / DESACTIVAR USUARIO
         // =====================================================
 
         [HttpPost]
@@ -196,18 +227,18 @@ namespace GaleriaArte.Web.Controllers
         {
             try
             {
-                Producto? producto =
-                    await _productoRepository.ObtenerPorIdAsync(id);
+                Usuario? usuario =
+                    await _usuarioRepository.ObtenerPorIdAsync(id);
 
-                if (producto == null)
+                if (usuario == null)
                 {
                     return NotFound();
                 }
 
-                bool nuevoEstado = !producto.Estado;
+                bool nuevoEstado = !usuario.Estado;
 
                 bool actualizado =
-                    await _productoRepository.CambiarEstadoAsync(
+                    await _usuarioRepository.CambiarEstadoAsync(
                         id,
                         nuevoEstado,
                         ObtenerIdUsuario());
@@ -218,39 +249,41 @@ namespace GaleriaArte.Web.Controllers
                 }
 
                 TempData["Mensaje"] = nuevoEstado
-                    ? "Producto activado correctamente."
-                    : "Producto desactivado correctamente.";
+                    ? "Usuario activado correctamente."
+                    : "Usuario desactivado correctamente.";
 
                 return RedirectToAction(nameof(Index));
             }
             catch (SqlException ex)
             {
                 TempData["Mensaje"] = ex.Message;
+
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
                 TempData["Mensaje"] =
-                    "Ocurrió un error al cambiar el estado del producto.";
+                    "Ocurrió un error al cambiar el estado del usuario.";
 
                 return RedirectToAction(nameof(Index));
             }
         }
+
         // =====================================================
-        // CARGAR PROVEEDORES ACTIVOS
+        // CARGAR ROLES ACTIVOS
         // =====================================================
 
-        private async Task CargarProveedoresAsync(
-            int? proveedorSeleccionado = null)
+        private async Task CargarRolesAsync(
+            int? rolSeleccionado = null)
         {
-            List<Proveedor> proveedores =
-                await _productoRepository.ObtenerProveedoresActivosAsync();
+            List<Rol> roles =
+                await _usuarioRepository.ObtenerRolesActivosAsync();
 
-            ViewBag.Proveedores = new SelectList(
-                proveedores,
-                "IdProveedor",
+            ViewBag.Roles = new SelectList(
+                roles,
+                "IdRol",
                 "Nombre",
-                proveedorSeleccionado
+                rolSeleccionado
             );
         }
 
@@ -271,8 +304,7 @@ namespace GaleriaArte.Web.Controllers
             }
 
             throw new InvalidOperationException(
-                "No se pudo obtener el usuario autenticado."
-            );
+                "No se pudo obtener el usuario autenticado.");
         }
     }
 }

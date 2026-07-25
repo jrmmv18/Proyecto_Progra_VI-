@@ -34,8 +34,8 @@ namespace GaleriaArte.Web.Models
         [Display(Name = "Stock mínimo")]
         public int StockMinimo { get; set; }
 
-        [Range(typeof(decimal), "0.01", "9999999999999999.99",
-            ErrorMessage = "El precio debe ser mayor que cero.")]
+        [Range(0.01, double.MaxValue,
+     ErrorMessage = "El precio debe ser mayor que cero.")]
         [Display(Name = "Precio")]
         public decimal Precio { get; set; }
 

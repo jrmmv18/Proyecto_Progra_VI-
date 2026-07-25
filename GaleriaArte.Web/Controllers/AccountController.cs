@@ -83,22 +83,27 @@ namespace GaleriaArte.Web.Controllers
 
             // Crear los datos de identidad del usuario
             List<Claim> claims = new List<Claim>
-            {
-                new Claim(
-                    ClaimTypes.NameIdentifier,
-                    usuario.IdUsuario.ToString()
-                ),
+                {
+                    new Claim(
+                        ClaimTypes.NameIdentifier,
+                        usuario.IdUsuario.ToString()
+                    ),
 
-                new Claim(
-                    ClaimTypes.Name,
-                    usuario.NombreUsuario
-                ),
+                    new Claim(
+                        ClaimTypes.Name,
+                        usuario.NombreUsuario
+                    ),
 
-                new Claim(
-                    "NombreCompleto",
-                    $"{usuario.Nombre} {usuario.Apellido}"
-                )
-            };
+                    new Claim(
+                        ClaimTypes.Role,
+                        usuario.Rol
+                    ),
+
+                    new Claim(
+                        "NombreCompleto",
+                        $"{usuario.Nombre} {usuario.Apellido}"
+                    )
+                };
 
             // Crear identidad
             ClaimsIdentity identity = new ClaimsIdentity(

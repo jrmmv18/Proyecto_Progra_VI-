@@ -28,7 +28,7 @@ body {
 
 body {
     font-family: Arial, sans-serif;
-    background: #f4f5f7;
+    background: #FBF8F4;
     color: #15171c;
 }
 
@@ -113,10 +113,11 @@ body {
 
 .main {
     flex: 1;
+    width: 100%;
     min-width: 0;
-    padding: 35px 42px;
+    padding: 20px;
+    background: #FBF8F4;
 }
-
 
 /* =====================================================
    ENCABEZADO DE PÁGINA
@@ -283,11 +284,6 @@ body {
 
     .logout {
         margin-top: 20px;
-    }
-
-    .main {
-        width: 100%;
-        padding: 25px 18px;
     }
 
 
@@ -782,4 +778,371 @@ body {
 
 .status-danger {
     color: #dc2626 !important;
+}
+
+
+
+
+.brand-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 22px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #2d313a;
+    margin-bottom: 25px;
+}
+
+.user-avatar {
+    font-size: 34px;
+    color: #22c55e;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #b8bec9;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: .2s;
+}
+
+    .menu-link i {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    .menu-link span {
+        flex: 1;
+    }
+
+.menu-divider {
+    height: 1px;
+    background: #3b404b;
+    margin: 16px 0;
+}
+
+.logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #c62828;
+    color: white;
+    cursor: pointer;
+    transition: .2s;
+}
+
+    .logout-btn:hover {
+        background: #b71c1c;
+    }
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.brand-logo {
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.brand-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.brand-subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #9aa2af;
+}
+/*==========================================
+    DASHBOARD
+==========================================*/
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.dashboard-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2E3138;
+    margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+    color: #8C8277;
+    font-size: 25px;
+    margin-bottom: 6px;
+}
+
+.dashboard-role {
+    text-align: right;
+}
+
+/*==========================================
+    DASHBOARD
+==========================================*/
+
+.dashboard-content {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - 40px);
+    padding: 18px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #FBF8F4;
+}
+
+    .dashboard-content::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: url('/images/dashboard-bg.png') right center no-repeat;
+        background-size: contain;
+        opacity: .05;
+        pointer-events: none;
+    }
+
+.dashboard-header {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 35px;
+}
+
+.dashboard-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #2E3138;
+    margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+    font-size: 18px;
+    color: #7A726A;
+    margin-bottom: 4px;
+}
+
+.dashboard-cards {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 25px;
+}
+
+/*==========================
+    TARJETAS
+==========================*/
+
+.dashboard-card {
+    height: 190px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 22px;
+    border: 1px solid rgba(183,159,138,.20);
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    transition: .30s;
+    display: flex;
+    flex-direction: column;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-8px);
+        background: white;
+        box-shadow: 0 18px 45px rgba(0,0,0,.18);
+    }
+
+/*==========================
+    ICONO
+==========================*/
+
+.card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #F4ECE5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #B79F8A;
+    margin-bottom: 18px;
+}
+
+/*==========================
+    TITULO
+==========================*/
+
+.card-title {
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: #80756C;
+    font-weight: 600;
+}
+
+/*==========================
+    VALOR
+==========================*/
+
+.card-value {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    color: #2E3138;
+    margin-top: 8px;
+    margin-bottom: auto;
+}
+
+/*==========================
+    BOTON
+==========================*/
+
+.card-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    background: #F5EFE8;
+    color: #8B6F5A;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .25s;
+}
+
+    .card-link:hover {
+        background: #B79F8A;
+        color: white;
+    }
+
+/*==========================
+    COLORES MODULOS
+==========================*/
+
+.obras .card-icon {
+    background: #F2E9E1;
+    color: #B79F8A;
+}
+
+.artistas .card-icon {
+    background: #F4EADF;
+    color: #C1A789;
+}
+
+.productos .card-icon {
+    background: #F0ECE8;
+    color: #8D8278;
+}
+
+.proveedores .card-icon {
+    background: #F6F0EB;
+    color: #9A8576;
+}
+
+.ventas .card-icon {
+    background: #EAF8EE;
+    color: #2FA866;
+}
+
+.mantenimiento .card-icon {
+    background: #EEF2F7;
+    color: #5F7288;
+}
+
+/*==========================
+    RESPONSIVE
+==========================*/
+
+@media(max-width:1200px) {
+
+    .dashboard-cards {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+@media(max-width:768px) {
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+}
+/*==========================================
+    FOOTER DASHBOARD
+==========================================*/
+
+.dashboard-footer {
+    position: relative;
+    z-index: 2;
+    margin-top: 60px;
+    text-align: center;
+    padding: 25px 0 10px 0;
+}
+
+    .dashboard-footer hr {
+        border: none;
+        border-top: 1px solid rgba(183,159,138,.25);
+        margin-bottom: 20px;
+    }
+
+.footer-version {
+    font-size: 15px;
+    font-weight: 600;
+    color: #6E645B;
+    margin-bottom: 6px;
+}
+
+.footer-copy {
+    font-size: 13px;
+    color: #9A8F85;
+}
+
+
+.card-description {
+    color: #8E857C;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    min-height: 8px;
 }

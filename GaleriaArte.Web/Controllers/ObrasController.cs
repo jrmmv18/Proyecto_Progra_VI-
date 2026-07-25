@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
+using Microsoft.Data.SqlClient;
 
 namespace GaleriaArte.Web.Controllers
 {
@@ -60,7 +61,6 @@ namespace GaleriaArte.Web.Controllers
 
             return View(new Obra());
         }
-
         // =====================================================
         // GUARDAR NUEVA OBRA
         // POST: /Obras/Create
@@ -80,15 +80,52 @@ namespace GaleriaArte.Web.Controllers
                 return View(obra);
             }
 
-            await _obraRepository.CrearAsync(
-     obra,
-     ObtenerIdUsuario()
- );
+            try
+            {
+                await _obraRepository.CrearAsync(
+                    obra,
+                    ObtenerIdUsuario()
+                );
 
-            TempData["Mensaje"] =
-                "Obra registrada correctamente.";
+                TempData["Mensaje"] =
+                    "Obra registrada correctamente.";
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (SqlException ex)
+            {
+                await CargarListasAsync(
+                    obra.IdArtista,
+                    obra.IdCategoria
+                );
+
+                string mensaje = ex.Message;
+
+                if (mensaje.Contains("UQ_Obras_Codigo") ||
+                    mensaje.Contains("duplicate key"))
+                {
+                    mensaje = "Ya existe una obra con el código indicado.";
+                }
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    mensaje);
+
+                return View(obra);
+            }
+            catch (Exception)
+            {
+                await CargarListasAsync(
+                    obra.IdArtista,
+                    obra.IdCategoria
+                );
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ocurrió un error inesperado al registrar la obra.");
+
+                return View(obra);
+            }
         }
 
         // =====================================================
@@ -141,15 +178,44 @@ namespace GaleriaArte.Web.Controllers
                 return View(obra);
             }
 
-            await _obraRepository.ActualizarAsync(
-    obra,
-    ObtenerIdUsuario()
-);
+            try
+            {
+                await _obraRepository.ActualizarAsync(
+                    obra,
+                    ObtenerIdUsuario()
+                );
 
-            TempData["Mensaje"] =
-                "Obra actualizada correctamente.";
+                TempData["Mensaje"] =
+                    "Obra actualizada correctamente.";
 
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
+            catch (SqlException ex)
+            {
+                await CargarListasAsync(
+                    obra.IdArtista,
+                    obra.IdCategoria
+                );
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    ex.Message);
+
+                return View(obra);
+            }
+            catch (Exception)
+            {
+                await CargarListasAsync(
+                    obra.IdArtista,
+                    obra.IdCategoria
+                );
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ocurrió un error inesperado al actualizar la obra.");
+
+                return View(obra);
+            }
         }
 
         // =====================================================
@@ -161,26 +227,43 @@ namespace GaleriaArte.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CambiarEstado(int id)
         {
-            Obra? obra = await _obraRepository.ObtenerPorIdAsync(id);
-
-            if (obra == null)
+            try
             {
-                return NotFound();
+                Obra? obra =
+                    await _obraRepository.ObtenerPorIdAsync(id);
+
+                if (obra == null)
+                {
+                    return NotFound();
+                }
+
+                bool nuevoEstado = !obra.Estado;
+
+                await _obraRepository.CambiarEstadoAsync(
+                    id,
+                    nuevoEstado,
+                    ObtenerIdUsuario()
+                );
+
+                TempData["Mensaje"] = nuevoEstado
+                    ? "Obra activada correctamente."
+                    : "Obra desactivada correctamente.";
+
+                return RedirectToAction(nameof(Index));
             }
+            catch (SqlException ex)
+            {
+                TempData["Mensaje"] = ex.Message;
 
-            bool nuevoEstado = !obra.Estado;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                TempData["Mensaje"] =
+                    "Ocurrió un error al cambiar el estado de la obra.";
 
-            await _obraRepository.CambiarEstadoAsync(
-                id,
-                nuevoEstado,
-                ObtenerIdUsuario()
-            );
-
-            TempData["Mensaje"] = nuevoEstado
-                ? "Obra activada correctamente."
-                : "Obra desactivada correctamente.";
-
-            return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // =====================================================

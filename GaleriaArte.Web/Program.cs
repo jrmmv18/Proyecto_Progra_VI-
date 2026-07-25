@@ -12,6 +12,7 @@ builder.Services.AddScoped<ArtistaRepository>();
 builder.Services.AddScoped<ObraRepository>();
 builder.Services.AddScoped<ProveedorRepository>();
 builder.Services.AddScoped<ProductoRepository>();
+builder.Services.AddScoped<DashboardRepository>();
 
 // Autenticación mediante cookies
 builder.Services.AddAuthentication("GaleriaArteCookie")

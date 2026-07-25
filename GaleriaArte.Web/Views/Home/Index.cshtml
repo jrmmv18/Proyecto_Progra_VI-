@@ -1,239 +1,228 @@
-﻿@{
-    ViewData["Title"] = "Panel principal";
+﻿@model GaleriaArte.Web.Models.DashboardViewModel
 
-    string nombreCompleto =
-        User.FindFirst("NombreCompleto")?.Value
-        ?? User.Identity?.Name
-        ?? "Usuario";
+@{
+    ViewData["Title"] = "Panel de Gestión";
 }
 
-<div class="header">
+<div class="dashboard-content">
 
-    <div>
+    <!-- Encabezado -->
+    <div class="dashboard-header">
 
-        <h1>Panel principal</h1>
+        <div>
 
-        <p>
-            Bienvenido, <strong>@nombreCompleto</strong>.
-            Seleccione el módulo que desea administrar.
-        </p>
+            <h2 class="dashboard-title">
+                Panel de Gestión
+            </h2>
+
+            <p class="dashboard-subtitle">
+                Resumen general del sistema de administración de la Galería de Arte
+            </p>
+
+            <small class="text-muted">
+                @Model.FechaActual.ToString("dddd, dd 'de' MMMM 'de' yyyy")
+            </small>
+
+        </div>
+
+    </div>
+
+    <!-- Tarjetas -->
+    <div class="dashboard-cards">
+
+        <!-- Obras -->
+        <div class="dashboard-card obras">
+
+            <div class="card-icon">
+                <i class="bi bi-image"></i>
+            </div>
+
+            <div class="card-title">
+                Obras
+            </div>
+
+            <div class="card-description">
+                Obras disponibles para exhibición
+                </div>
+
+
+            <div class="card-value">
+                @Model.TotalObras
+            </div>
+
+            <a asp-controller="Obras"
+               asp-action="Index"
+               class="card-link">
+
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+        <!-- Artistas -->
+        <div class="dashboard-card artistas">
+
+            <div class="card-icon">
+                <i class="bi bi-palette"></i>
+            </div>
+
+            <div class="card-title">
+                Artistas
+            </div>
+
+            <div class="card-description">
+                AArtistas registrados en la galería
+            </div>
+
+            <div class="card-value">
+                @Model.TotalArtistas
+            </div>
+
+            <a asp-controller="Artistas"
+               asp-action="Index"
+               class="card-link">
+
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+        <!-- Productos -->
+        <div class="dashboard-card productos">
+
+            <div class="card-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+
+            <div class="card-title">
+                Productos
+            </div>
+
+            <div class="card-description">
+                Productos para restauracion y operación
+             </div>
+
+            <div class="card-value">
+                @Model.TotalProductos
+            </div>
+
+            <a asp-controller="Productos"
+               asp-action="Index"
+               class="card-link">
+
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+        <!-- Proveedores -->
+        <div class="dashboard-card proveedores">
+
+            <div class="card-icon">
+                <i class="bi bi-truck"></i>
+            </div>
+
+            <div class="card-title">
+                Proveedores
+            </div>
+
+            <div class="card-description">
+                Proveedores autorizados
+            </div>
+           
+
+            <div class="card-value">
+                @Model.TotalProveedores
+            </div>
+
+            <a asp-controller="Proveedores"
+               asp-action="Index"
+               class="card-link">
+
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+        <!-- Ventas -->
+        <div class="dashboard-card ventas">
+
+            <div class="card-icon">
+                <i class="bi bi-cart-check"></i>
+            </div>
+
+            <div class="card-title">
+                Ventas
+            </div>
+            <div class="card-description">
+                Historial de ventas realizadas
+            </div>
+            <div class="card-value">
+                @Model.TotalVentas
+            </div>
+
+            <a href="#"
+               class="card-link disabled">
+
+                Próximamente
+
+            </a>
+
+        </div>
+
+        <!-- Mantenimiento -->
+        <div class="dashboard-card mantenimiento">
+
+            <div class="card-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+
+            <div class="card-title">
+                Mantenimiento
+            </div>
+            <div class="card-description">
+                Conservación y restauración de obras
+            </div>
+
+            <div class="card-value">
+                @Model.TotalMantenimientos
+            </div>
+
+            <a href="#"
+               class="card-link disabled">
+
+                Próximamente
+
+            </a>
+
+        </div>
 
     </div>
 
 </div>
+<footer class="dashboard-footer">
 
-<h2 class="section-title">
-    Módulos del sistema
-</h2>
+    <hr />
 
-<div class="modules-grid">
+    <div class="footer-version">
 
-    <!-- OBRAS -->
-    <a asp-controller="Obras"
-       asp-action="Index"
-       class="module-card">
-
-        <span class="module-number">
-            01
-        </span>
-
-        <h3>Obras</h3>
-
-        <p>
-            Registro y administración
-            de las obras de la galería.
-        </p>
-
-    </a>
-
-    <!-- ARTISTAS -->
-    <a asp-controller="Artistas"
-       asp-action="Index"
-       class="module-card">
-
-        <span class="module-number">
-            02
-        </span>
-
-        <h3>Artistas</h3>
-
-        <p>
-            Información y administración
-            de artistas registrados.
-        </p>
-
-    </a>
-
-    <!-- PROVEEDORES -->
-    <a asp-controller="Proveedores"
-       asp-action="Index"
-       class="module-card">
-
-        <span class="module-number">
-            03
-        </span>
-
-        <h3>Proveedores</h3>
-
-        <p>
-            Administración de proveedores
-            del inventario.
-        </p>
-
-    </a>
-
-    <!-- PRODUCTOS -->
-    <a asp-controller="Productos"
-       asp-action="Index"
-       class="module-card">
-
-        <span class="module-number">
-            04
-        </span>
-
-        <h3>Productos</h3>
-
-        <p>
-            Control de productos,
-            existencias y stock.
-        </p>
-
-    </a>
-
-    <!-- VISITAS -->
-    <div class="module-card disabled">
-
-        <span class="module-number">
-            05
-        </span>
-
-        <h3>Visitas</h3>
-
-        <p>
-            Módulo disponible
-            próximamente.
-        </p>
+        <strong>Galería de Arte</strong> - Sistema de Gestión
 
     </div>
 
-    <!-- VENTAS -->
-    <div class="module-card disabled">
+    <div class="footer-copy">
 
-        <span class="module-number">
-            06
-        </span>
-
-        <h3>Ventas</h3>
-
-        <p>
-            Módulo disponible
-            próximamente.
-        </p>
+        Versión 1.0.0 &nbsp; | &nbsp;
+        © 2026 Todos los derechos reservados.
 
     </div>
 
-    <!-- MANTENIMIENTO -->
-    <div class="module-card disabled">
-
-        <span class="module-number">
-            07
-        </span>
-
-        <h3>Mantenimiento</h3>
-
-        <p>
-            Módulo disponible
-            próximamente.
-        </p>
-
-    </div>
-
-</div>
-
-<div class="status-box">
-
-    <h3>Estado del sistema</h3>
-
-    <div class="status-grid">
-
-        <div class="status-item">
-
-            <span class="status-label">
-                Base de datos
-            </span>
-
-            <span class="status-success">
-                ● Conectada
-            </span>
-
-        </div>
-
-        <div class="status-item">
-
-            <span class="status-label">
-                Usuario
-            </span>
-
-            <span>
-                @User.Identity?.Name
-            </span>
-
-        </div>
-
-        <div class="status-item">
-
-            <span class="status-label">
-                Fecha
-            </span>
-
-            <span>
-                @DateTime.Now.ToString("dd/MM/yyyy")
-            </span>
-
-        </div>
-
-        <div class="status-item">
-
-            <span class="status-label">
-                Hora
-            </span>
-
-            <span>
-                @DateTime.Now.ToString("HH:mm")
-            </span>
-
-        </div>
-
-    </div>
-
-</div>
-               
-
-@section Scripts {
-
-    <script>
-
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const tarjetasDeshabilitadas =
-                document.querySelectorAll(".module-card.disabled");
-
-            tarjetasDeshabilitadas.forEach(function (tarjeta) {
-
-                tarjeta.style.cursor = "not-allowed";
-
-                tarjeta.addEventListener("click", function (e) {
-
-                    e.preventDefault();
-
-                    alert("Este módulo estará disponible en una próxima versión.");
-
-                });
-
-            });
-
-        });
-
-    </script>
-
-}
+</footer>

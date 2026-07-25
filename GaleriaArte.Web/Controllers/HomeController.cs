@@ -12,35 +12,41 @@ namespace GaleriaArte.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly DatabaseConnection _databaseConnection;
+        private readonly DashboardRepository _dashboardRepository;
 
         public HomeController(
-            ILogger<HomeController> logger,
-            DatabaseConnection databaseConnection)
+     ILogger<HomeController> logger,
+     DatabaseConnection databaseConnection,
+     DashboardRepository dashboardRepository)
         {
             _logger = logger;
             _databaseConnection = databaseConnection;
+            _dashboardRepository = dashboardRepository;
         }
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                await using SqlConnection connection =
-                    _databaseConnection.CreateConnection();
+                var dashboard = await _dashboardRepository.ObtenerResumenAsync();
 
-                await connection.OpenAsync();
+                dashboard.Usuario =
+                    User.FindFirst("NombreCompleto")?.Value
+                    ?? User.Identity?.Name
+                    ?? "";
 
-                ViewBag.EstadoConexion = "Conexión exitosa";
-                ViewBag.BaseDatos = connection.Database;
-                ViewBag.Servidor = connection.DataSource;
+                dashboard.Rol =
+                    User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                    ?? "";
+
+                return View(dashboard);
             }
             catch (Exception ex)
             {
-                ViewBag.EstadoConexion = "Error de conexión";
                 ViewBag.ErrorConexion = ex.Message;
-            }
 
-            return View();
+                return View(new DashboardViewModel());
+            }
         }
 
         public IActionResult Privacy()
