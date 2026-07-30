@@ -1,4 +1,4 @@
-﻿@model List<GaleriaArte.Web.Models.Obra>
+﻿@model GaleriaArte.Web.Models.ListaPaginada<GaleriaArte.Web.Models.Obra>
 
 @{
     ViewData["Title"] = "Obras";
@@ -26,11 +26,15 @@
     </div>
 }
 
-@if (Model.Count == 0)
+<partial name="_Filtros" model="Model.Paginacion" />
+
+@if (Model.Items.Count == 0)
 {
     <div class="table-card">
         <div class="empty">
-            No hay obras registradas.
+            @(Model.Paginacion.HayFiltros
+                ? "No se encontraron resultados con los filtros aplicados."
+                : "No hay obras registradas.")
         </div>
     </div>
 }
@@ -57,7 +61,7 @@ else
 
                 <tbody>
 
-                    @foreach (var obra in Model)
+                    @foreach (var obra in Model.Items)
                     {
                         <tr>
 
@@ -155,3 +159,4 @@ else
 
     </div>
 }
+<partial name="_Paginacion" model="Model.Paginacion" />

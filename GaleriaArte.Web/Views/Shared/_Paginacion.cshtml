@@ -1,0 +1,88 @@
+@model GaleriaArte.Web.Models.PaginacionInfo
+
+@if (Model.TotalRegistros > 0)
+{
+    @*
+        Ventana de hasta cinco numeros de pagina centrada
+        en la pagina que se esta viendo.
+    *@
+    int desde = Math.Max(1, Model.PaginaActual - 2);
+    int hasta = Math.Min(Model.TotalPaginas, desde + 4);
+    desde = Math.Max(1, hasta - 4);
+
+    <div class="pagination-bar">
+
+        <div class="pagination-info">
+            Mostrando @Model.PrimerRegistro a @Model.UltimoRegistro
+            de @Model.TotalRegistros registros
+        </div>
+
+        @if (Model.TotalPaginas > 1)
+        {
+            <div class="pagination">
+
+                @if (Model.TienePaginaAnterior)
+                {
+                    <a asp-controller="@Model.Controlador"
+                       asp-action="@Model.Accion"
+                       asp-route-busqueda="@Model.Busqueda"
+                       asp-route-fechaInicio="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                       asp-route-fechaFin="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                       asp-route-pagina="@(Model.PaginaActual - 1)"
+                       class="page-link">
+                        Anterior
+                    </a>
+                }
+                else
+                {
+                    <span class="page-link disabled">
+                        Anterior
+                    </span>
+                }
+
+                @for (int numero = desde; numero <= hasta; numero++)
+                {
+                    if (numero == Model.PaginaActual)
+                    {
+                        <span class="page-link active">
+                            @numero
+                        </span>
+                    }
+                    else
+                    {
+                        <a asp-controller="@Model.Controlador"
+                           asp-action="@Model.Accion"
+                           asp-route-busqueda="@Model.Busqueda"
+                           asp-route-fechaInicio="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                           asp-route-fechaFin="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                           asp-route-pagina="@numero"
+                           class="page-link">
+                            @numero
+                        </a>
+                    }
+                }
+
+                @if (Model.TienePaginaSiguiente)
+                {
+                    <a asp-controller="@Model.Controlador"
+                       asp-action="@Model.Accion"
+                       asp-route-busqueda="@Model.Busqueda"
+                       asp-route-fechaInicio="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                       asp-route-fechaFin="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                       asp-route-pagina="@(Model.PaginaActual + 1)"
+                       class="page-link">
+                        Siguiente
+                    </a>
+                }
+                else
+                {
+                    <span class="page-link disabled">
+                        Siguiente
+                    </span>
+                }
+
+            </div>
+        }
+
+    </div>
+}

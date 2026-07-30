@@ -41,12 +41,41 @@ namespace GaleriaArte.Web.Controllers
         // =====================================================
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? busqueda,
+            DateTime? fechaInicio,
+            DateTime? fechaFin,
+            int pagina = 1)
         {
             List<Obra> obras =
                 await _obraRepository.ObtenerTodosAsync();
 
-            return View(obras);
+            IEnumerable<Obra> filtradas = obras
+                .Where(obra => FiltroBusqueda.Coincide(
+                    busqueda,
+                    obra.Nombre,
+                    obra.Codigo,
+                    obra.NombreArtista,
+                    obra.NombreCategoria))
+                .Where(obra => FiltroBusqueda.EnRango(
+                    obra.FechaIngresoGaleria,
+                    fechaInicio,
+                    fechaFin));
+
+            PaginacionInfo paginacion = new()
+            {
+                PaginaActual = pagina,
+                Busqueda = busqueda,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
+                Controlador = "Obras",
+                EtiquetaFechas = "Ingreso",
+                PlaceholderBusqueda =
+                    "Nombre de obra, código, artista o categoría"
+            };
+
+            return View(
+                ListaPaginada<Obra>.Crear(filtradas, paginacion));
         }
 
         // =====================================================

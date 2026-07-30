@@ -17,12 +17,41 @@ namespace GaleriaArte.Web.Controllers
 
         // LISTAR ARTISTAS
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? busqueda,
+            DateTime? fechaInicio,
+            DateTime? fechaFin,
+            int pagina = 1)
         {
             List<Artista> artistas =
                 await _artistaRepository.ObtenerTodosAsync();
 
-            return View(artistas);
+            IEnumerable<Artista> filtrados = artistas
+                .Where(artista => FiltroBusqueda.Coincide(
+                    busqueda,
+                    artista.Nombre,
+                    artista.Apellido,
+                    artista.Pais,
+                    artista.Correo))
+                .Where(artista => FiltroBusqueda.EnRango(
+                    artista.FechaRegistro,
+                    fechaInicio,
+                    fechaFin));
+
+            PaginacionInfo paginacion = new()
+            {
+                PaginaActual = pagina,
+                Busqueda = busqueda,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
+                Controlador = "Artistas",
+                EtiquetaFechas = "Registro",
+                PlaceholderBusqueda =
+                    "Nombre, apellido, país o correo"
+            };
+
+            return View(
+                ListaPaginada<Artista>.Crear(filtrados, paginacion));
         }
 
         // MOSTRAR FORMULARIO DE CREACIÓN

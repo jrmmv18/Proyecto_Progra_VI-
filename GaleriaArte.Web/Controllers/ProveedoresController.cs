@@ -19,12 +19,41 @@ namespace GaleriaArte.Web.Controllers
 
         // LISTAR PROVEEDORES
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? busqueda,
+            DateTime? fechaInicio,
+            DateTime? fechaFin,
+            int pagina = 1)
         {
             List<Proveedor> proveedores =
                 await _proveedorRepository.ObtenerTodosAsync();
 
-            return View(proveedores);
+            IEnumerable<Proveedor> filtrados = proveedores
+                .Where(proveedor => FiltroBusqueda.Coincide(
+                    busqueda,
+                    proveedor.Nombre,
+                    proveedor.Correo,
+                    proveedor.Telefono,
+                    proveedor.Direccion))
+                .Where(proveedor => FiltroBusqueda.EnRango(
+                    proveedor.FechaRegistro,
+                    fechaInicio,
+                    fechaFin));
+
+            PaginacionInfo paginacion = new()
+            {
+                PaginaActual = pagina,
+                Busqueda = busqueda,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
+                Controlador = "Proveedores",
+                EtiquetaFechas = "Registro",
+                PlaceholderBusqueda =
+                    "Nombre, correo o teléfono"
+            };
+
+            return View(
+                ListaPaginada<Proveedor>.Crear(filtrados, paginacion));
         }
 
         // MOSTRAR FORMULARIO DE CREACIÓN

@@ -1,4 +1,4 @@
-@model List<GaleriaArte.Web.Models.Visita>
+@model GaleriaArte.Web.Models.ListaPaginada<GaleriaArte.Web.Models.Visita>
 
 @{
     ViewData["Title"] = "Visitas";
@@ -28,12 +28,16 @@
     </div>
 }
 
-@if (Model.Count == 0)
+<partial name="_Filtros" model="Model.Paginacion" />
+
+@if (Model.Items.Count == 0)
 {
     <div class="table-card">
 
         <div class="empty">
-            No hay visitas registradas.
+            @(Model.Paginacion.HayFiltros
+                ? "No se encontraron resultados con los filtros aplicados."
+                : "No hay visitas registradas.")
         </div>
 
     </div>
@@ -64,7 +68,7 @@ else
 
                 <tbody>
 
-                    @foreach (var visita in Model)
+                    @foreach (var visita in Model.Items)
                     {
                         <tr>
 
@@ -189,3 +193,5 @@ else
 
     </div>
 }
+
+<partial name="_Paginacion" model="Model.Paginacion" />

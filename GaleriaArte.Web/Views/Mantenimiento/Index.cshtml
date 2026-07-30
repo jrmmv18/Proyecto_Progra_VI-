@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GaleriaArte.Web.Models.Mantenimiento>
+﻿@model GaleriaArte.Web.Models.ListaPaginada<GaleriaArte.Web.Models.Mantenimiento>
 
 @{
     ViewData["Title"] = "Historial de Mantenimientos";
@@ -33,6 +33,8 @@
     </div>
 }
 
+<partial name="_Filtros" model="Model.Paginacion" />
+
 <div class="table-card">
 
     <div class="table-responsive">
@@ -50,9 +52,9 @@
             </thead>
 
             <tbody>
-                @if (Model != null && Model.Any())
+                @if (Model.Items.Any())
                 {
-                    foreach (var item in Model)
+                    foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>
@@ -92,7 +94,11 @@
                 {
                     <tr>
                         <td colspan="5" class="text-center text-muted py-5 border-0">
-                            <div class="empty">No se registran órdenes de mantenimiento vigentes.</div>
+                            <div class="empty">
+                                @(Model.Paginacion.HayFiltros
+                                    ? "No se encontraron resultados con los filtros aplicados."
+                                    : "No se registran órdenes de mantenimiento vigentes.")
+                            </div>
                         </td>
                     </tr>
                 }
@@ -103,6 +109,8 @@
     </div>
 
 </div>
+
+<partial name="_Paginacion" model="Model.Paginacion" />
 
 @section Scripts {
     @{

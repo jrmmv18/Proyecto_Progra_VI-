@@ -29,17 +29,47 @@ namespace GaleriaArte.Web.Controllers
         }
 
         // T-16.8: GET: Mantenimiento (Vista del historial)
-        public IActionResult Index()
+        public IActionResult Index(
+            string? busqueda,
+            DateTime? fechaInicio,
+            DateTime? fechaFin,
+            int pagina = 1)
         {
+            PaginacionInfo paginacion = new()
+            {
+                PaginaActual = pagina,
+                Busqueda = busqueda,
+                FechaInicio = fechaInicio,
+                FechaFin = fechaFin,
+                Controlador = "Mantenimiento",
+                EtiquetaFechas = "Mantenimiento",
+                PlaceholderBusqueda = "Descripción del trabajo"
+            };
+
             try
             {
                 var listaMantenimientos = _mantenimientoRepository.ListarTodos();
-                return View(listaMantenimientos);
+
+                var filtrados = listaMantenimientos
+                    .Where(mantenimiento => FiltroBusqueda.Coincide(
+                        busqueda,
+                        mantenimiento.DescripcionTrabajo))
+                    .Where(mantenimiento => FiltroBusqueda.EnRango(
+                        mantenimiento.FechaMantenimiento,
+                        fechaInicio,
+                        fechaFin));
+
+                return View(
+                    ListaPaginada<Mantenimiento>.Crear(filtrados, paginacion));
             }
             catch (Exception ex)
             {
                 ViewBag.Error = $"No se pudo cargar el historial: {ex.Message}";
-                return View(new List<Mantenimiento>());
+
+                return View(
+                    ListaPaginada<Mantenimiento>.Crear(
+                        new List<Mantenimiento>(),
+                        paginacion));
             }
         }
 

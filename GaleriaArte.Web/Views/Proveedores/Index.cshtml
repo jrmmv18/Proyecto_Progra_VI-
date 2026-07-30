@@ -1,4 +1,4 @@
-﻿@model List<GaleriaArte.Web.Models.Proveedor>
+﻿@model GaleriaArte.Web.Models.ListaPaginada<GaleriaArte.Web.Models.Proveedor>
 
 @{
     ViewData["Title"] = "Proveedores";
@@ -25,12 +25,16 @@
     </div>
 }
 
-@if (!Model.Any())
+<partial name="_Filtros" model="Model.Paginacion" />
+
+@if (!Model.Items.Any())
 {
     <div class="table-card">
 
         <div class="empty">
-            No hay proveedores registrados.
+            @(Model.Paginacion.HayFiltros
+                ? "No se encontraron resultados con los filtros aplicados."
+                : "No hay proveedores registrados.")
         </div>
 
     </div>
@@ -57,7 +61,7 @@ else
 
                 <tbody>
 
-                    @foreach (var proveedor in Model)
+                    @foreach (var proveedor in Model.Items)
                     {
                         <tr>
 
@@ -150,3 +154,4 @@ else
 
     </div>
 }
+<partial name="_Paginacion" model="Model.Paginacion" />

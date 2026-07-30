@@ -1,0 +1,70 @@
+@model GaleriaArte.Web.Models.PaginacionInfo
+
+<div class="filter-card">
+
+    <form asp-controller="@Model.Controlador"
+          asp-action="@Model.Accion"
+          method="get"
+          class="filter-form">
+
+        <div class="filter-group filter-group-search">
+
+            <label for="busqueda">Buscar</label>
+
+            <input type="text"
+                   id="busqueda"
+                   name="busqueda"
+                   value="@Model.Busqueda"
+                   class="form-control"
+                   placeholder="@Model.PlaceholderBusqueda" />
+
+        </div>
+
+        @if (Model.MostrarFiltroFechas)
+        {
+            <div class="filter-group">
+
+                <label for="fechaInicio">@Model.EtiquetaFechas desde</label>
+
+                <input type="date"
+                       id="fechaInicio"
+                       name="fechaInicio"
+                       value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                       class="form-control" />
+
+            </div>
+
+            <div class="filter-group">
+
+                <label for="fechaFin">@Model.EtiquetaFechas hasta</label>
+
+                <input type="date"
+                       id="fechaFin"
+                       name="fechaFin"
+                       value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                       class="form-control" />
+
+            </div>
+        }
+
+        <div class="filter-actions">
+
+            <button type="submit"
+                    class="btn-primary">
+                Filtrar
+            </button>
+
+            @if (Model.HayFiltros)
+            {
+                <a asp-controller="@Model.Controlador"
+                   asp-action="@Model.Accion"
+                   class="btn-secondary">
+                    Limpiar
+                </a>
+            }
+
+        </div>
+
+    </form>
+
+</div>
