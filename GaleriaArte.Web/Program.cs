@@ -12,6 +12,7 @@ builder.Services.AddScoped<ArtistaRepository>();
 builder.Services.AddScoped<ObraRepository>();
 builder.Services.AddScoped<ProveedorRepository>();
 builder.Services.AddScoped<ProductoRepository>();
+builder.Services.AddScoped<VisitaRepository>();
 builder.Services.AddScoped<DashboardRepository>();
 
 // NUEVO: Registro ordenado para módulo de mantenimiento (HU-11)

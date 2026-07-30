@@ -1,17 +1,191 @@
+@model List<GaleriaArte.Web.Models.Visita>
+
 @{
     ViewData["Title"] = "Visitas";
 }
 
 <div class="page-header page-header-actions">
+
     <div>
         <h1>Visitas</h1>
-        <p>Control de Visitas</p>
+        <p>Control de entradas y salidas de los visitantes.</p>
     </div>
+
+
+
+    <a asp-controller="Visitas"
+       asp-action="Create"
+       class="btn-primary">
+        + Registrar entrada
+    </a>
+
 </div>
 
-<div class="table-card">
-    <div class="empty text-center py-5">
-        <h3>Próximamente</h3>
-        <p class="text-muted">La sección de ventas está en mantenimiento.</p>
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
     </div>
-</div>
+}
+
+@if (Model.Count == 0)
+{
+    <div class="table-card">
+
+        <div class="empty">
+            No hay visitas registradas.
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table visitas-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Visitante</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Permanencia</th>
+                        <th>Situación</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var visita in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                <div class="obra-name">
+                                    @visita.NombreCompletoCliente
+                                </div>
+
+                                <div class="obra-code">
+                                    @visita.CorreoCliente
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <div class="value">
+                                    @visita.FechaIngreso.ToString("dd/MM/yyyy")
+                                </div>
+
+                                <div class="obra-code">
+                                    @visita.FechaIngreso.ToString("hh:mm tt")
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                @if (visita.FechaSalida.HasValue)
+                                {
+                                    <div class="value">
+                                        @visita.FechaSalida.Value.ToString("dd/MM/yyyy")
+                                    </div>
+
+                                    <div class="obra-code">
+                                        @visita.FechaSalida.Value.ToString("hh:mm tt")
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="secondary-text">
+                                        Sin registrar
+                                    </div>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <div class="value">
+                                    @visita.DuracionTexto
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                @if (visita.EnCurso)
+                                {
+                                    <span class="badge situacion-dentro">
+                                        En galería
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge situacion-fuera">
+                                        Finalizada
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <div class="descripcion-trabajo">
+                                    @visita.Observaciones
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <div class="table-actions">
+
+                                    @if (visita.EnCurso)
+                                    {
+                                        <form asp-controller="Visitas"
+                                              asp-action="RegistrarSalida"
+                                              asp-route-id="@visita.IdVisita"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn-exit">
+                                                Registrar salida
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                    <a asp-controller="Visitas"
+                                       asp-action="Edit"
+                                       asp-route-id="@visita.IdVisita"
+                                       class="btn-edit">
+                                        Editar
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
