@@ -1,69 +1,53 @@
 @model GaleriaArte.Web.Models.PaginacionInfo
 
-<div class="filter-card">
+<div class="filter-bar">
 
     <form asp-controller="@Model.Controlador"
           asp-action="@Model.Accion"
           method="get"
           class="filter-form">
 
-        <div class="filter-group filter-group-search">
-
-            <label for="busqueda">Buscar</label>
-
-            <input type="text"
-                   id="busqueda"
-                   name="busqueda"
-                   value="@Model.Busqueda"
-                   class="form-control"
-                   placeholder="@Model.PlaceholderBusqueda" />
-
-        </div>
+        <input type="text"
+               name="busqueda"
+               value="@Model.Busqueda"
+               class="form-control filter-input"
+               placeholder="@Model.PlaceholderBusqueda"
+               aria-label="Buscar" />
 
         @if (Model.MostrarFiltroFechas)
         {
-            <div class="filter-group">
+            <span class="filter-label">@Model.EtiquetaFechas</span>
 
-                <label for="fechaInicio">@Model.EtiquetaFechas desde</label>
+            <input type="date"
+                   name="fechaInicio"
+                   value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                   class="form-control filter-date"
+                   aria-label="@Model.EtiquetaFechas desde"
+                   title="Desde" />
 
-                <input type="date"
-                       id="fechaInicio"
-                       name="fechaInicio"
-                       value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
-                       class="form-control" />
+            <span class="filter-label">a</span>
 
-            </div>
-
-            <div class="filter-group">
-
-                <label for="fechaFin">@Model.EtiquetaFechas hasta</label>
-
-                <input type="date"
-                       id="fechaFin"
-                       name="fechaFin"
-                       value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
-                       class="form-control" />
-
-            </div>
+            <input type="date"
+                   name="fechaFin"
+                   value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                   class="form-control filter-date"
+                   aria-label="@Model.EtiquetaFechas hasta"
+                   title="Hasta" />
         }
 
-        <div class="filter-actions">
+        <button type="submit"
+                class="btn-filter">
+            Filtrar
+        </button>
 
-            <button type="submit"
-                    class="btn-primary">
-                Filtrar
-            </button>
-
-            @if (Model.HayFiltros)
-            {
-                <a asp-controller="@Model.Controlador"
-                   asp-action="@Model.Accion"
-                   class="btn-secondary">
-                    Limpiar
-                </a>
-            }
-
-        </div>
+        @if (Model.HayFiltros)
+        {
+            <a asp-controller="@Model.Controlador"
+               asp-action="@Model.Accion"
+               class="btn-filter-clear">
+                Limpiar
+            </a>
+        }
 
     </form>
 
