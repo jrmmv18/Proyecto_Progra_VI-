@@ -1,0 +1,216 @@
+﻿@model GaleriaArte.Web.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Panel de Gestión";
+}
+
+<div class="dashboard-content">
+
+    <!-- Encabezado -->
+    <div class="dashboard-header">
+
+        <div>
+
+            <h2 class="dashboard-title">
+                Panel de Gestión
+            </h2>
+
+            <p class="dashboard-subtitle">
+                Resumen general del sistema de administración de la Galería de Arte
+            </p>
+
+            <small class="text-muted">
+                @Model.FechaActual.ToString("dddd, dd 'de' MMMM 'de' yyyy")
+            </small>
+
+        </div>
+
+    </div>
+
+    <!-- Tarjetas -->
+    <div class="dashboard-cards">
+
+        <!-- Obras -->
+        <div class="dashboard-card obras">
+
+            <div class="card-icon">
+                <i class="bi bi-image"></i>
+            </div>
+
+            <div class="card-title">
+                Obras
+            </div>
+
+            <div class="card-description">
+                Obras disponibles para exhibición
+            </div>
+
+            <div class="card-value">
+                @Model.TotalObras
+            </div>
+
+            <a asp-controller="Obras"
+               asp-action="Index"
+               class="card-link">
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
+        <!-- Artistas -->
+        <div class="dashboard-card artistas">
+
+            <div class="card-icon">
+                <i class="bi bi-palette"></i>
+            </div>
+
+            <div class="card-title">
+                Artistas
+            </div>
+
+            <div class="card-description">
+                Artistas registrados en la galería
+            </div>
+
+            <div class="card-value">
+                @Model.TotalArtistas
+            </div>
+
+            <a asp-controller="Artistas"
+               asp-action="Index"
+               class="card-link">
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
+        <!-- Productos -->
+        <div class="dashboard-card productos">
+
+            <div class="card-icon">
+                <i class="bi bi-box-seam"></i>
+            </div>
+
+            <div class="card-title">
+                Productos
+            </div>
+
+            <div class="card-description">
+                Productos para restauracion y operación
+            </div>
+
+            <div class="card-value">
+                @Model.TotalProductos
+            </div>
+
+            <a asp-controller="Productos"
+               asp-action="Index"
+               class="card-link">
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
+        <!-- Proveedores -->
+        <div class="dashboard-card proveedores">
+
+            <div class="card-icon">
+                <i class="bi bi-truck"></i>
+            </div>
+
+            <div class="card-title">
+                Proveedores
+            </div>
+
+            <div class="card-description">
+                Proveedores autorizados
+            </div>
+
+            <div class="card-value">
+                @Model.TotalProveedores
+            </div>
+
+            <a asp-controller="Proveedores"
+               asp-action="Index"
+               class="card-link">
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
+        <!-- Ventas -->
+        <div class="dashboard-card ventas">
+
+            <div class="card-icon">
+                <i class="bi bi-cart-check"></i>
+            </div>
+
+            <div class="card-title">
+                Ventas
+            </div>
+            <div class="card-description">
+                Historial de ventas realizadas
+            </div>
+            <div class="card-value">
+                @Model.TotalVentas
+            </div>
+
+            <a href="#"
+               class="card-link disabled">
+                Próximamente
+            </a>
+
+        </div>
+
+        <!-- Mantenimiento (Sincronizado e Integrado de forma Activa) -->
+        <div class="dashboard-card mantenimiento">
+
+            <div class="card-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+
+            <div class="card-title">
+                Mantenimiento
+            </div>
+            <div class="card-description">
+                Conservación y restauración de obras
+            </div>
+
+            <!-- Lee en tiempo real el conteo físico del repositorio inyectado -->
+            <div class="card-value">
+                @Model.TotalMantenimientos
+            </div>
+
+            <!-- CAMBIO CLAVE: Se activa el redireccionamiento interactivo hacia tu módulo -->
+            <a asp-controller="Mantenimiento"
+               asp-action="Index"
+               class="card-link">
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer class="dashboard-footer">
+
+    <hr />
+
+    <div class="footer-version">
+        <strong>Galería de Arte</strong> - Sistema de Gestión
+    </div>
+
+    <div class="footer-copy">
+        Versión 1.0.0 &nbsp; | &nbsp;
+        © 2026 Todos los derechos reservados.
+    </div>
+
+</footer>
+

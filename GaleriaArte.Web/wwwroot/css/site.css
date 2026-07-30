@@ -1,0 +1,1334 @@
+html {
+    /* Reducido ligeramente para un aspecto más compacto */
+    font-size: 13px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        /* Pantallas medias/desktop: tamaño base ligeramente menor que antes */
+        font-size: 15px;
+    }
+}
+
+
+/* =====================================================
+   CONFIGURACIÓN GENERAL
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #FBF8F4;
+    color: #15171c;
+}
+
+
+/* =====================================================
+   ESTRUCTURA GENERAL DEL SISTEMA
+===================================================== */
+
+.app {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #24272f;
+    color: white;
+    padding: 22px 17px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    flex: 0 0 240px; /* reserve space when visible */
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 50px;
+}
+
+/* Cuando la app tenga la clase sidebar-collapsed, liberar el espacio lateral
+   para que el contenido principal ocupe toda la anchura (evita hueco en el lado izquierdo). */
+.app.sidebar-collapsed .sidebar {
+    /* sacamos la barra del flujo cambiando su flex-basis/width a 0 */
+    flex-basis: 0 !important;
+    width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    overflow: hidden !important;
+}
+
+.app.sidebar-collapsed .sidebar > * {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Asegurar que el main ocupe todo el ancho sin dejar margen */
+.app.sidebar-collapsed .main {
+    margin-left: 0;
+}
+
+.menu-title {
+    font-size: 11px;
+    color: #aeb3bd;
+    letter-spacing: 1.5px;
+    margin: 18px 11px 10px;
+}
+
+.menu-link {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 13px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+}
+
+/* Transition y mejora visual para links del menú */
+.menu-link {
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+    .menu-link:hover {
+        background: linear-gradient(90deg, #2f3340, #3a3f4b);
+        color: #ffffff;
+        transform: translateX(4px);
+    }
+
+/* Botón del menú en el header: sincroniza con el resto del CSS */
+.btn-toggle-menu {
+    transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+    .btn-toggle-menu:active {
+        transform: translateY(1px);
+        box-shadow: none;
+    }
+
+/* Animación de mostrar/ocultar la barra lateral (clase JS toggled) */
+.sidebar {
+    transition: transform 0.28s cubic-bezier(.2,.9,.2,1), opacity 0.22s ease;
+}
+
+.sidebar.hidden {
+    transform: translateX(-18px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* En pantallas pequeñas la barra lateral se posiciona sobre el contenido para evitar
+   que su apertura/cierre cambie el flujo y provoque saltos de scroll. */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 260px;
+        padding-top: 22px;
+        z-index: 1050;
+        transform: translateX(-100%);
+        opacity: 0;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .sidebar.hidden {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .sidebar:not(.hidden) {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Evitar que el body haga scroll cuando el menú está abierto en móvil */
+    body.no-scroll {
+        overflow: hidden;
+        height: 100%;
+    }
+}
+
+
+/* =====================================================
+   CERRAR SESIÓN
+===================================================== */
+
+.logout {
+    margin-top: auto;
+}
+
+    .logout button {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        border: 1px solid #555b67;
+        border-radius: 7px;
+        color: white;
+        cursor: pointer;
+    }
+
+
+/* =====================================================
+   CONTENIDO PRINCIPAL
+===================================================== */
+
+.main {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    padding: 20px;
+    background: #FBF8F4;
+}
+
+/* =====================================================
+   ENCABEZADO DE PÁGINA
+===================================================== */
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+    .page-header h1 {
+        margin: 0 0 6px;
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        margin: 0;
+        color: #6b7280;
+    }
+
+
+/* =====================================================
+   TARJETA DEL FORMULARIO
+===================================================== */
+
+.form-card {
+    width: 100%;
+    background: white;
+    border: 1px solid #d9dde4;
+    border-radius: 12px;
+    padding: 28px;
+}
+
+
+/* =====================================================
+   DISTRIBUCIÓN DE CAMPOS
+===================================================== */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 22px;
+}
+
+.form-group {
+    min-width: 0;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+/* =====================================================
+   CAMPOS DEL FORMULARIO
+===================================================== */
+
+.form-control {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 11px 13px;
+    border: 1px solid #cfd4dc;
+    border-radius: 7px;
+    background: white;
+    font: inherit;
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #6b7280;
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    }
+
+/* Asegurar que los selects hereden el mismo aspecto que los inputs */
+.form-select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 11px 13px;
+    border: 1px solid #cfd4dc;
+    border-radius: 7px;
+    background: white;
+    font: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #6b7280;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.form-select option {
+    color: #15171c;
+}
+
+/* Asegurar tipografía y color coherentes en formularios y tarjetas */
+.form-label {
+    font-family: inherit;
+    color: #15171c; /* mismo color que el texto del sitio */
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-control,
+.form-select,
+textarea {
+    color: #15171c;
+    font-family: inherit;
+}
+
+.card,
+.card-body,
+.table-card {
+    color: #15171c;
+    font-family: inherit;
+}
+
+/* Enlaces y botones dentro de formularios deben mantener la misma fuente y color por defecto */
+.btn,
+.btn-primary,
+.btn-secondary,
+.card-link,
+.menu-link {
+    font-family: inherit;
+}
+
+
+/* =====================================================
+   VALIDACIONES
+===================================================== */
+
+.field-validation {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #b42318;
+}
+
+.validation-summary {
+    color: #b42318;
+    margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   BOTONES DEL FORMULARIO
+===================================================== */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e5e9;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 7px;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    border: 1px solid #24272f;
+    background: #24272f;
+    color: white;
+}
+
+    .btn-primary:hover {
+        background: #15171c;
+        border-color: #15171c;
+        color: white;
+    }
+
+.btn-secondary {
+    border: 1px solid #cfd4dc;
+    background: white;
+    color: #15171c;
+}
+
+    .btn-secondary:hover {
+        background: #f4f5f7;
+        color: #15171c;
+    }
+
+
+/* =====================================================
+   RESPONSIVE GENERAL
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .app {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .brand {
+        margin-bottom: 20px;
+    }
+
+    .logout {
+        margin-top: 20px;
+    }
+
+
+    /* FORMULARIO */
+
+    .form-card {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+    }
+}
+/* =====================================================
+   MÓDULO OBRAS
+===================================================== */
+
+/* ENCABEZADO CON BOTÓN */
+
+.page-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+    .page-header-actions > div {
+        min-width: 0;
+    }
+
+
+/* =====================================================
+   MENSAJES DEL SISTEMA
+===================================================== */
+
+.message {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: #d9f0e3;
+    color: #17663b;
+    border-radius: 8px;
+}
+
+
+/* =====================================================
+   TARJETA DE TABLA
+===================================================== */
+
+.table-card {
+    width: 100%;
+    background: white;
+    border: 1px solid #dedfe3;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* =====================================================
+   TABLA GENERAL
+===================================================== */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.obras-table {
+    min-width: 1050px;
+}
+
+.data-table th {
+    padding: 15px 18px;
+    background: #f8f8f9;
+    color: #686f7a;
+    border-bottom: 1px solid #dedfe3;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid #ececef;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.obra-name {
+    font-weight: 700;
+}
+
+.obra-code {
+    margin-top: 4px;
+    color: #777e89;
+    font-size: 13px;
+}
+
+
+.descripcion-trabajo {
+    max-width: 420px;
+    line-height: 1.6;
+    white-space: normal;
+    padding-left: 0.8rem;
+    color: #333;
+}
+
+.artist-name {
+    font-weight: 600;
+}
+
+.category-name {
+    color: #555b67;
+}
+
+.value {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+.badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-active {
+    background: #d9f0e3;
+    color: #17663b;
+}
+
+.status-inactive {
+    background: #f5dddd;
+    color: #9a2828;
+}
+
+.conservation {
+    background: #eceef1;
+    color: #444952;
+}
+
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+    .table-actions form {
+        margin: 0;
+    }
+
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 12px;
+    background: white;
+    color: #22252c;
+    border: 1px solid #d7d9de;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    .btn-edit:hover {
+        background: #f4f5f7;
+    }
+
+.btn-state {
+    min-height: 38px;
+    padding: 8px 12px;
+    background: #eceef1;
+    color: #22252c;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+    .btn-state:hover {
+        background: #dde0e5;
+    }
+
+
+.empty {
+    padding: 60px 20px;
+    color: #777e89;
+    text-align: center;
+}
+
+
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+
+/* =====================================================
+   RESPONSIVE DEL MÓDULO OBRAS
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .page-header-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .page-header-actions .btn-primary {
+            width: 100%;
+        }
+
+    .obras-table {
+        min-width: 1000px;
+    }
+
+    .table-card {
+        border-radius: 10px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 14px 16px;
+    }
+
+    .form-group.full {
+        grid-column: auto;
+    }
+}
+/* =====================================================
+   MÓDULO ARTISTAS
+===================================================== */
+
+.artistas-table {
+    min-width: 900px;
+}
+
+.artist-name {
+    font-weight: 700;
+}
+
+.artist-email {
+    margin-top: 4px;
+    color: #777e89;
+    font-size: 13px;
+}
+
+@media (max-width:768px) {
+
+    .artistas-table {
+        min-width: 900px;
+    }
+}
+
+/* =====================================================================
+   MÓDULO DE INTERFAZ: DISEÑO DE BOTÓN Y COLAPSO DE MENÚ DE LA GALERÍA
+===================================================================== */
+
+/* Estilo exacto del botón con las fuentes y grosores de tus formularios */
+.btn-toggle-menu {
+    border: 1px solid #cfd4dc;
+    background: white;
+    color: #15171c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 7px; /* Modificar a 0px si tus inputs usan bordes totalmente rectos */
+    font-size: 14px;
+    font-family: monospace;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+    .btn-toggle-menu:hover {
+        background: #f4f5f7;
+        color: #15171c;
+    }
+
+/* Comportamiento geométrico en pantallas de escritorio */
+@media (min-width: 769px) {
+    /* Evita usar display:none en desktop para que no produzca saltos de scroll.
+       Se utiliza transform/opacity para ocultar visualmente la barra sin reflujo. */
+    .sidebar.hidden {
+        transform: translateX(-18px);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* No modificar display del contenedor .app al colapsar para evitar reflujo que provoca que
+       el navegador ajuste la posición de scroll. */
+    .app.sidebar-collapsed {
+        /* Intencionalmente vacío: mantenemos el layout para evitar saltos */
+    }
+}
+
+
+/* =====================================================
+   MENÚ ACTIVO
+===================================================== */
+
+
+
+.menu-link.active {
+    background: #2f3642;
+    color: #22c55e;
+    border-left: 4px solid #22c55e;
+    font-weight: 600;
+    padding-left: 9px;
+}
+
+    .menu-link.active:hover {
+        background: #2f3642;
+        color: #22c55e;
+    }
+/* =====================================================
+   MÓDULO PROVEEDORES
+===================================================== */
+
+.proveedores-table {
+    min-width: 1100px;
+}
+
+.provider-name {
+    font-weight: 700;
+}
+
+.secondary-text {
+    color: #777e89;
+}
+
+.status-active {
+    background: #d9f0e3;
+    color: #17663b;
+}
+
+.status-inactive {
+    background: #f5dddd;
+    color: #9a2828;
+}
+
+@media(max-width:768px) {
+
+    .proveedores-table {
+        min-width: 1100px;
+    }
+}
+
+/*=============================
+  DASHBOARD HOME
+==============================*/
+
+.header {
+    margin-bottom: 30px;
+}
+
+    .header h1 {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .header p {
+        color: #666;
+        font-size: 18px;
+    }
+
+.section-title {
+    margin: 35px 0 20px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+    gap: 25px;
+}
+
+.module-card {
+    display: block;
+    text-decoration: none;
+    color: #222;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    padding: 28px;
+    transition: .20s;
+}
+
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,.08);
+        text-decoration: none;
+        color: #111;
+    }
+
+.module-number {
+    display: block;
+    color: #8a8a8a;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.module-card h3 {
+    margin: 0 0 12px;
+    font-size: 30px;
+}
+
+.module-card p {
+    margin: 0;
+    color: #666;
+    line-height: 1.6;
+}
+
+.module-card.disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+.status-box {
+    margin-top: 40px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    padding: 24px;
+}
+
+    .status-box strong {
+        display: block;
+        font-size: 22px;
+        margin-bottom: 15px;
+    }
+
+.status-ok {
+    color: #14823b;
+    font-size: 17px;
+}
+
+/*==============================
+  ESTADO DEL SISTEMA
+==============================*/
+
+.status-box {
+    margin-top: 40px;
+    background: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.04);
+}
+
+    .status-box h3 {
+        margin: 0 0 25px;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    gap: 20px;
+}
+
+.status-item {
+    background: #f8f9fb;
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid #ececec;
+}
+
+.status-label {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.status-item span:last-child {
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+}
+
+.status-success {
+    color: #16a34a !important;
+    font-weight: 700;
+}
+
+.status-warning {
+    color: #f59e0b !important;
+}
+
+.status-danger {
+    color: #dc2626 !important;
+}
+
+
+
+
+.brand-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 22px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #2d313a;
+    margin-bottom: 25px;
+}
+
+.user-avatar {
+    font-size: 34px;
+    color: #22c55e;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #b8bec9;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: .2s;
+}
+
+    .menu-link i {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    .menu-link span {
+        flex: 1;
+    }
+
+.menu-divider {
+    height: 1px;
+    background: #3b404b;
+    margin: 16px 0;
+}
+
+.logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #c62828;
+    color: white;
+    cursor: pointer;
+    transition: .2s;
+}
+
+    .logout-btn:hover {
+        background: #b71c1c;
+    }
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.brand-logo {
+    width: 240px;
+    height: 240px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.brand-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.brand-subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #9aa2af;
+}
+/*==========================================
+    DASHBOARD
+==========================================*/
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.dashboard-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2E3138;
+    margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+    color: #8C8277;
+    font-size: 25px;
+    margin-bottom: 6px;
+}
+
+.dashboard-role {
+    text-align: right;
+}
+
+/*==========================================
+    DASHBOARD
+==========================================*/
+
+.dashboard-content {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - 40px);
+    padding: 18px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #FBF8F4;
+}
+
+    .dashboard-content::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: url('/images/dashboard-bg.png') right center no-repeat;
+        background-size: contain;
+        opacity: .05;
+        pointer-events: none;
+    }
+
+.dashboard-header {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 35px;
+}
+
+.dashboard-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #2E3138;
+    margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+    font-size: 18px;
+    color: #7A726A;
+    margin-bottom: 4px;
+}
+
+.dashboard-cards {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 25px;
+}
+
+/*==========================
+    TARJETAS
+==========================*/
+
+.dashboard-card {
+    height: 190px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 22px;
+    border: 1px solid rgba(183,159,138,.20);
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    transition: .30s;
+    display: flex;
+    flex-direction: column;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-8px);
+        background: white;
+        box-shadow: 0 18px 45px rgba(0,0,0,.18);
+    }
+
+/*==========================
+    ICONO
+==========================*/
+
+.card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #F4ECE5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #B79F8A;
+    margin-bottom: 18px;
+}
+
+/*==========================
+    TITULO
+==========================*/
+
+.card-title {
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: #80756C;
+    font-weight: 600;
+}
+
+/*==========================
+    VALOR
+==========================*/
+
+.card-value {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    color: #2E3138;
+    margin-top: 8px;
+    margin-bottom: auto;
+}
+
+/*==========================
+    BOTON
+==========================*/
+
+.card-link {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    background: #F5EFE8;
+    color: #8B6F5A;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .25s;
+}
+
+    .card-link:hover {
+        background: #B79F8A;
+        color: white;
+    }
+
+/*==========================
+    COLORES MODULOS
+==========================*/
+
+.obras .card-icon {
+    background: #F2E9E1;
+    color: #B79F8A;
+}
+
+.artistas .card-icon {
+    background: #F4EADF;
+    color: #C1A789;
+}
+
+.productos .card-icon {
+    background: #F0ECE8;
+    color: #8D8278;
+}
+
+.proveedores .card-icon {
+    background: #F6F0EB;
+    color: #9A8576;
+}
+
+.ventas .card-icon {
+    background: #EAF8EE;
+    color: #2FA866;
+}
+
+.mantenimiento .card-icon {
+    background: #EEF2F7;
+    color: #5F7288;
+}
+
+/*==========================
+    RESPONSIVE
+==========================*/
+
+@media(max-width:1200px) {
+
+    .dashboard-cards {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+@media(max-width:768px) {
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+}
+/*==========================================
+    FOOTER DASHBOARD
+==========================================*/
+
+.dashboard-footer {
+    position: relative;
+    z-index: 2;
+    margin-top: 60px;
+    text-align: center;
+    padding: 25px 0 10px 0;
+}
+
+    .dashboard-footer hr {
+        border: none;
+        border-top: 1px solid rgba(183,159,138,.25);
+        margin-bottom: 20px;
+    }
+
+.footer-version {
+    font-size: 15px;
+    font-weight: 600;
+    color: #6E645B;
+    margin-bottom: 6px;
+}
+
+.footer-copy {
+    font-size: 13px;
+    color: #9A8F85;
+}
+
+
+.card-description {
+    color: #8E857C;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    min-height: 8px;
+}

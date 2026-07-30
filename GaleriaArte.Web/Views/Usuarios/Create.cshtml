@@ -1,0 +1,147 @@
+﻿@model GaleriaArte.Web.Models.Usuario
+
+@{
+    ViewData["Title"] = "Nuevo usuario";
+}
+
+<div class="page-header">
+
+    <div>
+        <h1>Nuevo usuario</h1>
+        <p>Registre un nuevo usuario del sistema.</p>
+    </div>
+
+</div>
+
+<div class="form-card">
+
+    <form asp-action="Create" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary-errors">
+        </div>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label asp-for="Nombre"></label>
+
+                <input asp-for="Nombre"
+                       class="form-control" />
+
+                <span asp-validation-for="Nombre"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Apellido"></label>
+
+                <input asp-for="Apellido"
+                       class="form-control" />
+
+                <span asp-validation-for="Apellido"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Correo"></label>
+
+                <input asp-for="Correo"
+                       class="form-control" />
+
+                <span asp-validation-for="Correo"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="NombreUsuario"></label>
+
+                <input asp-for="NombreUsuario"
+                       class="form-control" />
+
+                <span asp-validation-for="NombreUsuario"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="IdRol">
+                    Rol
+                </label>
+
+                <select asp-for="IdRol"
+                        asp-items="ViewBag.Roles"
+                        class="form-control">
+
+                    <option value="">
+                        Seleccione...
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="IdRol"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Password">
+                    Contraseña
+                </label>
+
+                <input asp-for="Password"
+                       class="form-control"
+                       autocomplete="new-password" />
+
+                <span asp-validation-for="Password"
+                      class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+
+                    <input asp-for="Estado" />
+
+                    Activo
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a asp-action="Index"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="btn-primary">
+                Guardar
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}
