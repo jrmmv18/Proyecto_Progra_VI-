@@ -73,11 +73,11 @@ body {
    para que el contenido principal ocupe toda la anchura (evita hueco en el lado izquierdo). */
 .app.sidebar-collapsed .sidebar {
     /* sacamos la barra del flujo cambiando su flex-basis/width a 0 */
-    flex-basis: 0 !important;
-    width: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    overflow: hidden !important;
+    flex-basis: 0;
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
 }
 
 .app.sidebar-collapsed .sidebar > * {
@@ -117,23 +117,18 @@ body {
         transform: translateX(4px);
     }
 
-/* Botón del menú en el header: sincroniza con el resto del CSS */
-.btn-toggle-menu {
-    transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.12s ease;
-}
-
-    .btn-toggle-menu:active {
-        transform: translateY(1px);
-        box-shadow: none;
-    }
-
 /* Animación de mostrar/ocultar la barra lateral (clase JS toggled) */
 .sidebar {
-    transition: transform 0.28s cubic-bezier(.2,.9,.2,1), opacity 0.22s ease;
+    transition: transform 0.38s cubic-bezier(.4,0,.2,1), opacity 0.26s ease, flex-basis 0.38s cubic-bezier(.4,0,.2,1), width 0.38s cubic-bezier(.4,0,.2,1), padding 0.38s cubic-bezier(.4,0,.2,1);
 }
 
+    /* El contenido interno se desvanece un poco antes que la barra */
+    .sidebar > * {
+        transition: opacity 0.22s ease;
+    }
+
 .sidebar.hidden {
-    transform: translateX(-18px);
+    transform: translateX(-26px);
     opacity: 0;
     pointer-events: none;
 }
@@ -720,29 +715,59 @@ textarea {
    MÓDULO DE INTERFAZ: DISEÑO DE BOTÓN Y COLAPSO DE MENÚ DE LA GALERÍA
 ===================================================================== */
 
-/* Estilo exacto del botón con las fuentes y grosores de tus formularios */
+/* Contenedor del boton de menu dentro del contenido principal */
+.global-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* Boton de menu: usa el color de la barra lateral y el verde de acento */
 .btn-toggle-menu {
-    border: 1px solid #cfd4dc;
-    background: white;
-    color: #15171c;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
     min-height: 42px;
-    padding: 10px 18px;
-    border-radius: 7px; /* Modificar a 0px si tus inputs usan bordes totalmente rectos */
-    font-size: 14px;
-    font-family: monospace;
-    font-weight: bold;
+    padding: 10px 22px;
+    border: 1px solid #24272f;
+    border-radius: 30px;
+    background: #24272f;
+    color: white;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     text-decoration: none;
     cursor: pointer;
-    letter-spacing: 1px;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,.10);
+    transition: background 0.22s ease, transform 0.18s ease, box-shadow 0.22s ease;
 }
 
+    .btn-toggle-menu i {
+        font-size: 1.1rem;
+        color: #22c55e;
+        transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* El icono gira cuando la barra lateral esta oculta */
+    .btn-toggle-menu[aria-expanded="false"] i {
+        transform: rotate(90deg);
+    }
+
     .btn-toggle-menu:hover {
-        background: #f4f5f7;
-        color: #15171c;
+        background: #15171c;
+        border-color: #15171c;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,.18);
+    }
+
+    .btn-toggle-menu:active {
+        transform: translateY(0);
+        box-shadow: 0 3px 8px rgba(0,0,0,.14);
     }
 
 /* Comportamiento geométrico en pantallas de escritorio */
@@ -1331,4 +1356,62 @@ textarea {
     line-height: 1.4;
     margin-bottom: 16px;
     min-height: 8px;
+}
+/* =====================================================
+   MODULO VISITAS
+===================================================== */
+
+.visitas-table {
+    min-width: 1150px;
+}
+
+/* Situacion del visitante dentro de la galeria */
+
+.situacion-dentro {
+    background: #e2edfb;
+    color: #1c4e8a;
+}
+
+.situacion-fuera {
+    background: #eceef1;
+    color: #444952;
+}
+
+/* Boton para marcar la salida del visitante */
+
+.btn-exit {
+    min-height: 38px;
+    padding: 8px 12px;
+    background: #24272f;
+    color: white;
+    border: 0;
+    border-radius: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+    .btn-exit:hover {
+        background: #15171c;
+    }
+
+/* Campos que ocupan las dos columnas del formulario */
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* =====================================================
+   RESPONSIVE DEL MODULO VISITAS
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .visitas-table {
+        min-width: 1150px;
+    }
+
+    .form-group.full-width {
+        grid-column: auto;
+    }
 }

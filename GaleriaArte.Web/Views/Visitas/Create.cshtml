@@ -1,0 +1,104 @@
+@model GaleriaArte.Web.Models.Visita
+
+@{
+    ViewData["Title"] = "Registrar entrada";
+}
+
+<div class="page-header">
+
+    <h1>Registrar entrada</h1>
+
+    <p>
+        Registre la entrada de un visitante a la galería.
+    </p>
+
+</div>
+
+<div class="form-card">
+
+    <form asp-action="Create"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary">
+        </div>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label asp-for="IdCliente"></label>
+
+                <select asp-for="IdCliente"
+                        asp-items="ViewBag.Clientes"
+                        class="form-control">
+
+                    <option value="">
+                        Seleccione un visitante
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="IdCliente"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="FechaIngreso"></label>
+
+                <input asp-for="FechaIngreso"
+                       type="datetime-local"
+                       class="form-control" />
+
+                <span asp-validation-for="FechaIngreso"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group full-width">
+
+                <label asp-for="Observaciones"></label>
+
+                <textarea asp-for="Observaciones"
+                          rows="5"
+                          class="form-control"
+                          placeholder="Observaciones de la visita (opcional)">
+                </textarea>
+
+                <span asp-validation-for="Observaciones"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a asp-action="Index"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="btn-primary">
+                Registrar entrada
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
