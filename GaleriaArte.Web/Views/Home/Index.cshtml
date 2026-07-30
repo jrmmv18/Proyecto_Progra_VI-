@@ -86,6 +86,45 @@
 
         </div>
 
+        <!-- Visitas -->
+        <div class="dashboard-card visitas">
+
+            <div class="card-icon">
+                <i class="bi bi-people"></i>
+            </div>
+
+            <div class="card-title">
+                Visitas
+            </div>
+
+            <div class="card-description">
+                @if (Model.VisitasEnCurso == 1)
+                {
+                    <text>1 visitante en la galería en este momento</text>
+                }
+                else if (Model.VisitasEnCurso > 1)
+                {
+                    <text>@Model.VisitasEnCurso visitantes en la galería en este momento</text>
+                }
+                else
+                {
+                    <text>Entradas y salidas registradas</text>
+                }
+            </div>
+
+            <div class="card-value">
+                @Model.TotalVisitas
+            </div>
+
+            <a asp-controller="Visitas"
+               asp-action="Index"
+               class="card-link">
+                Ver detalles
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
         <!-- Productos -->
         <div class="dashboard-card productos">
 

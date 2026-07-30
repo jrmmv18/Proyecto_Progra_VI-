@@ -49,6 +49,12 @@ namespace GaleriaArte.Web.Data
 
                 dashboard.TotalMantenimientos =
                     Convert.ToInt32(reader["TotalMantenimientos"]);
+
+                dashboard.TotalVisitas =
+                    Convert.ToInt32(reader["TotalVisitas"]);
+
+                dashboard.VisitasEnCurso =
+                    Convert.ToInt32(reader["VisitasEnCurso"]);
             }
 
             return dashboard;

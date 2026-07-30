@@ -1282,6 +1282,11 @@ textarea {
     color: #C1A789;
 }
 
+.visitas .card-icon {
+    background: #EDF3FB;
+    color: #5B7FA8;
+}
+
 .productos .card-icon {
     background: #F0ECE8;
     color: #8D8278;

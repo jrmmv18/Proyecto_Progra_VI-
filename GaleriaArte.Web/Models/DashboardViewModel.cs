@@ -15,6 +15,12 @@
 
         public int TotalMantenimientos { get; set; }
 
+        // Visitas registradas en total
+        public int TotalVisitas { get; set; }
+
+        // Visitantes que aun no registran su salida
+        public int VisitasEnCurso { get; set; }
+
         // Usuario autenticado
         public string Usuario { get; set; } = string.Empty;
 
