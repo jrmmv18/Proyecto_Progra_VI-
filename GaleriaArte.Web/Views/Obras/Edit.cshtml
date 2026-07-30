@@ -1,0 +1,202 @@
+﻿@model GaleriaArte.Web.Models.Obra
+
+@{
+    ViewData["Title"] = "Editar obra";
+}
+
+<div class="page-header">
+
+    <h1>Editar obra</h1>
+
+    <p>
+        Actualiza la información de la obra seleccionada.
+    </p>
+
+</div>
+
+<div class="form-card">
+
+    <form asp-controller="Obras"
+          asp-action="Edit"
+          asp-route-id="@Model.IdObra"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="IdObra"
+               type="hidden" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="validation-summary">
+        </div>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label asp-for="IdArtista">
+                    Artista
+                </label>
+
+                <select asp-for="IdArtista"
+                        asp-items="ViewBag.Artistas"
+                        class="form-control">
+
+                    <option value="">
+                        Seleccione un artista
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="IdArtista"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="IdCategoria">
+                    Categoría
+                </label>
+
+                <select asp-for="IdCategoria"
+                        asp-items="ViewBag.Categorias"
+                        class="form-control">
+
+                    <option value="">
+                        Seleccione una categoría
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="IdCategoria"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Codigo"></label>
+
+                <input asp-for="Codigo"
+                       class="form-control"
+                       placeholder="Ejemplo: OBR-002" />
+
+                <span asp-validation-for="Codigo"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="Nombre"></label>
+
+                <input asp-for="Nombre"
+                       class="form-control"
+                       placeholder="Ingrese el nombre de la obra" />
+
+                <span asp-validation-for="Nombre"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="FechaCreacion"></label>
+
+                <input asp-for="FechaCreacion"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="FechaCreacion"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="ValorEstimado"></label>
+
+                <input asp-for="ValorEstimado"
+                       type="number"
+                       step="0.01"
+                       min="0"
+                       class="form-control" />
+
+                <span asp-validation-for="ValorEstimado"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group full">
+
+                <label asp-for="EstadoConservacion"></label>
+
+                <select asp-for="EstadoConservacion"
+                        class="form-control">
+
+                    <option value="">
+                        Seleccione el estado de conservación
+                    </option>
+
+                    <option value="Excelente">Excelente</option>
+                    <option value="Bueno">Bueno</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Malo">Malo</option>
+
+                </select>
+
+                <span asp-validation-for="EstadoConservacion"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group full">
+
+                <label asp-for="Descripcion"></label>
+
+                <textarea asp-for="Descripcion"
+                          class="form-control form-textarea">
+                </textarea>
+
+                <span asp-validation-for="Descripcion"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+
+            <a asp-controller="Obras"
+               asp-action="Index"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="btn-primary">
+                Guardar cambios
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial"
+        );
+    }
+}

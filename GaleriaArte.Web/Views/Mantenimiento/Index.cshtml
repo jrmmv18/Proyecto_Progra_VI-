@@ -1,0 +1,111 @@
+﻿@model IEnumerable<GaleriaArte.Web.Models.Mantenimiento>
+
+@{
+    ViewData["Title"] = "Historial de Mantenimientos";
+}
+
+<div class="page-header page-header-actions">
+
+    <div>
+        <h1>Mantenimiento</h1>
+        <p>Control de Mantenimiento de Obras</p>
+    </div>
+
+    <a asp-controller="Mantenimiento"
+       asp-action="Crear"
+       class="btn-primary">
+        + Registrar Mantenimiento
+    </a>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="message" style="border-left-color: #dc3545; color: #dc3545;">
+        @ViewBag.Error
+    </div>
+}
+
+<div class="table-card">
+
+    <div class="table-responsive">
+
+        <table class="data-table obras-table">
+
+            <thead>
+                <tr>
+                    <th>N° Orden</th>
+                    <th>Código Obra</th>
+                    <th>Fecha Ejecución</th>
+                    <th>Descripción del Trabajo</th>
+                    <th style="text-align: center;">Usuario ID</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="obra-code fw-bold">
+                                    @item.IdMantenimiento
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="obra-name">Obra Relacionada</div>
+                                <div class="obra-code">ID: @item.IdObra</div>
+                            </td>
+
+                            <td>
+                                <div>@item.FechaMantenimiento.ToString("dd/MM/yyyy")</div>
+                                <div class="text-muted small">
+                                    @item.FechaMantenimiento.ToString("hh:mm tt")
+                                </div>
+                            </td>
+
+                            <!-- Descripción técnica: usa clase global para heredar estilos -->
+                            <td class="descripcion-trabajo">
+                                <div class="artist-name">
+                                    @item.DescripcionTrabajo
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="category-name text-center">
+                                    @item.IdUsuario
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5 border-0">
+                            <div class="empty">No se registran órdenes de mantenimiento vigentes.</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

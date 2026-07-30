@@ -1,0 +1,127 @@
+﻿@model GaleriaArte.Web.Models.Mantenimiento
+
+@{
+    ViewData["Title"] = "Nueva Orden Técnica";
+}
+
+
+<div class="container-fluid py-5 px-4">
+
+    <!-- Encabezado: usa la estructura común para heredar estilos del layout -->
+    <div class="page-header page-header-actions mb-4">
+        <div>
+            <h1>Nueva Orden de Mantenimiento</h1>
+            <p>Ficha de Registro Técnico / Preservación Patrimonial</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10">
+            <form asp-action="Crear" method="post" id="mantenimientoForm" class="needs-validation">
+                @Html.AntiForgeryToken()
+
+                <!-- SECCIÓN 2: Resumen de Errores de Validación -->
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-0 border-1 border-danger shadow-none mb-5 small" style="border-left: 5px solid #dc3545 !important;"></div>
+
+                <!-- SECCIÓN 3: Tarjeta Principal del Formulario -->
+                <div class="card border-1 rounded-0 mb-5 bg-white shadow-sm">
+                    <div class="card-header bg-dark text-white rounded-0 py-3 border-0">
+                        <h6 class="m-0">Datos Obligatorios del Informe</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Campos en Fila con Espaciado g-4 -->
+                        <div class="form-grid mb-4">
+                            <!-- Selector de Obra de Arte -->
+                            <div class="form-group">
+                                <label asp-for="IdObra" class="form-label">Obra de Arte Custodiada</label>
+                                <select asp-for="IdObra" asp-items="(IEnumerable<SelectListItem>)ViewBag.ObrasDisponibles" class="form-control" required>
+                                    <option value="" disabled selected>-- SELECCIONAR OBRA --</option>
+                                </select>
+                                <span asp-validation-for="IdObra" class="text-danger small d-block mt-1"></span>
+                            </div>
+
+                            <!-- Fecha y Hora separadas para mantener el mismo orden que Obras -->
+                            <div class="form-group">
+                                <label class="form-label">Fecha del Proceso</label>
+                                <input id="FechaInput" type="date" class="form-control" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Hora del Proceso</label>
+                                <input id="HoraInput" type="time" class="form-control" required />
+                            </div>
+
+                            @* Hidden field bound to the model's FechaMantenimiento. It will be populated on submit by JS combining date+time *@
+                            <input asp-for="FechaMantenimiento" type="hidden" id="FechaMantenimientoHidden" />
+                            <span asp-validation-for="FechaMantenimiento" class="text-danger small d-block mt-1"></span>
+                        </div>
+
+                        <!-- Área de Descripción Técnica -->
+                        <div class="mb-2">
+                            <label asp-for="DescripcionTrabajo" class="form-label">Diagnóstico Técnico y Acciones Realizadas</label>
+                            <textarea asp-for="DescripcionTrabajo" class="form-control" rows="5" placeholder="Describa las intervenciones realizadas..." ></textarea>
+                            <span asp-validation-for="DescripcionTrabajo" class="text-danger small d-block mt-1"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: Botonera con Bordes Rectos del Proyecto -->
+                <div class="d-flex align-items-center gap-3">
+                    <button type="submit" class="btn btn-primary">
+                        Confirmar Registro
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        Regresar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        (function(){
+            var form = document.getElementById('mantenimientoForm');
+            var dateInput = document.getElementById('FechaInput');
+            var timeInput = document.getElementById('HoraInput');
+            var hidden = document.getElementById('FechaMantenimientoHidden');
+
+            // Si el campo oculto ya tiene valor (edición), intentar separar en date+time
+            if (hidden && hidden.value) {
+                try {
+                    var dt = new Date(hidden.value);
+                    if (!isNaN(dt)) {
+                        // formato yyyy-MM-dd para date, HH:mm para time
+                        var y = dt.getFullYear();
+                        var m = (dt.getMonth()+1).toString().padStart(2,'0');
+                        var d = dt.getDate().toString().padStart(2,'0');
+                        dateInput.value = y+"-"+m+"-"+d;
+
+                        var hh = dt.getHours().toString().padStart(2,'0');
+                        var mm = dt.getMinutes().toString().padStart(2,'0');
+                        timeInput.value = hh+":"+mm;
+                    }
+                } catch(e) {}
+            }
+
+            if (form) {
+                form.addEventListener('submit', function(e){
+                    // Antes de enviar, combinar date+time en formato ISO para el campo oculto
+                    if (dateInput && timeInput && hidden) {
+                        var d = dateInput.value; // yyyy-mm-dd
+                        var t = timeInput.value; // hh:mm
+                        if (d && t) {
+                            hidden.value = d + 'T' + t + ':00';
+                        } else if (d && !t) {
+                            hidden.value = d + 'T00:00:00';
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
+}

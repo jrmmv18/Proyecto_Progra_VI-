@@ -1,0 +1,152 @@
+﻿@model List<GaleriaArte.Web.Models.Proveedor>
+
+@{
+    ViewData["Title"] = "Proveedores";
+}
+
+<div class="page-header-actions">
+
+    <div class="page-header">
+        <h1>Proveedores</h1>
+        <p>Administración de los proveedores del inventario.</p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn-primary">
+        + Nuevo proveedor
+    </a>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="table-card">
+
+        <div class="empty">
+            No hay proveedores registrados.
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table proveedores-table">
+
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Dirección</th>
+                        <th>Estado</th>
+                        <th>Fecha de registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var proveedor in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <div class="provider-name">
+                                    @proveedor.Nombre
+                                </div>
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(proveedor.Telefono)
+                                    ? "No registrado"
+                                    : proveedor.Telefono)
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(proveedor.Correo)
+                                    ? "No registrado"
+                                    : proveedor.Correo)
+                            </td>
+
+                            <td>
+                                <div class="secondary-text">
+                                    @(string.IsNullOrWhiteSpace(proveedor.Direccion)
+                                        ? "No registrada"
+                                        : proveedor.Direccion)
+                                </div>
+                            </td>
+
+                            <td>
+
+                                @if (proveedor.Estado)
+                                {
+                                    <span class="badge status-active">
+                                        Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-inactive">
+                                        Inactivo
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+                                @proveedor.FechaRegistro.ToString("dd/MM/yyyy")
+                            </td>
+
+                            <td>
+
+                                <div class="table-actions">
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@proveedor.IdProveedor"
+                                       class="btn-edit">
+                                        Editar
+                                    </a>
+
+                                    <form asp-action="CambiarEstado"
+                                          asp-route-id="@proveedor.IdProveedor"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn-state">
+
+                                            @(proveedor.Estado
+                                                ? "Desactivar"
+                                                : "Activar")
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
