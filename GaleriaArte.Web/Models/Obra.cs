@@ -52,5 +52,40 @@ namespace GaleriaArte.Web.Models
         public string NombreArtista { get; set; } = string.Empty;
 
         public string NombreCategoria { get; set; } = string.Empty;
+
+        // =====================================================
+        // SEMAFORO DEL VALOR ESTIMADO
+        // Verde   : menos de 50 millones
+        // Amarillo: de 50 a 100 millones
+        // Rojo    : mas de 100 millones
+        // Negro   : sin valor o valor negativo
+        // =====================================================
+
+        public const decimal ValorMedio = 50_000_000m;
+
+        public const decimal ValorAlto = 100_000_000m;
+
+        public string ClaseValor
+        {
+            get
+            {
+                if (ValorEstimado <= 0)
+                {
+                    return "valor-nulo";
+                }
+
+                if (ValorEstimado > ValorAlto)
+                {
+                    return "valor-alto";
+                }
+
+                if (ValorEstimado >= ValorMedio)
+                {
+                    return "valor-medio";
+                }
+
+                return "valor-bajo";
+            }
+        }
     }
 }

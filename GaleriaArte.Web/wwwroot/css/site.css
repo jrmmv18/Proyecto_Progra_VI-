@@ -1562,3 +1562,27 @@ textarea {
         justify-content: center;
     }
 }
+
+/* =====================================================
+   SEMAFORO DEL VALOR ESTIMADO DE LAS OBRAS
+===================================================== */
+
+/* Menos de 50 millones */
+.value.valor-bajo {
+    color: #17663b;
+}
+
+/* De 50 a 100 millones */
+.value.valor-medio {
+    color: #9a6b00;
+}
+
+/* Mas de 100 millones */
+.value.valor-alto {
+    color: #b42318;
+}
+
+/* Sin valor registrado o valor negativo */
+.value.valor-nulo {
+    color: #15171c;
+}
