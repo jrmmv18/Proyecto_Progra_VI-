@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration; // Requerido para leer el appsettings.json
+using Microsoft.Extensions.Configuration;
 using GaleriaArte.Web.Models;
 
 namespace GaleriaArte.Web.Data
@@ -11,103 +11,461 @@ namespace GaleriaArte.Web.Data
     {
         private readonly string _connectionString;
 
-        // El constructor resuelve de forma segura la variable _connectionString
-        public MantenimientoRepository(IConfiguration configuration)
-        {
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            // Mapeo exacto de la clave de tu appsettings.json
-            _connectionString = configuration.GetConnectionString("GaleriaArteDB") ?? string.Empty;
+    public MantenimientoRepository(
+        IConfiguration configuration)
+        {
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(configuration));
+            }
+
+            _connectionString =
+                configuration.GetConnectionString("GaleriaArteDB")
+                ?? throw new InvalidOperationException(
+                    "No se encontró la cadena de conexión 'GaleriaArteDB'.");
         }
 
-        // 1. MÉTODO PARA REGISTRAR EN REPOSITORIO (Blindado contra NOCOUNT)
-        public bool RegistrarMantenimientoCompleto(Mantenimiento mantenimiento)
+        // 1. REGISTRAR EL MANTENIMIENTO PRINCIPAL
+        // Devuelve el IdMantenimiento generado.
+        public int RegistrarMantenimientoCompleto(
+            Mantenimiento mantenimiento)
         {
-            if (mantenimiento == null) return false;
-
-            try
+            if (mantenimiento == null)
             {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    using (var cmd = new SqlCommand("sp_RegistrarMantenimiento", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@IdObra", mantenimiento.IdObra);
-                        cmd.Parameters.AddWithValue("@DescripcionTrabajo", mantenimiento.DescripcionTrabajo ?? (object)DBNull.Value);
-
-                        // Evitar enviar DateTime.MinValue o fechas fuera del rango de SQL DATETIME.
-                        // Si la fecha no está definida, enviamos DBNull para que el stored procedure pueda asignar GETDATE().
-                        var fechaParam = new SqlParameter("@FechaMantenimiento", SqlDbType.DateTime);
-                        if (mantenimiento.FechaMantenimiento == default(DateTime) || mantenimiento.FechaMantenimiento < new DateTime(1753, 1, 1))
-                        {
-                            fechaParam.Value = DBNull.Value;
-                        }
-                        else
-                        {
-                            fechaParam.Value = mantenimiento.FechaMantenimiento;
-                        }
-                        cmd.Parameters.Add(fechaParam);
-
-                        cmd.Parameters.AddWithValue("@IdUsuario", mantenimiento.IdUsuario);
-
-                        conn.Open();
-
-                        // Ejecutamos el comando en la base de datos
-                        cmd.ExecuteNonQuery();
-
-                        conn.Close();
-
-                        // Si llegó a esta línea sin saltar al 'catch', la inserción fue exitosa
-                        return true;
-                    }
-                }
+                throw new ArgumentNullException(
+                    nameof(mantenimiento));
             }
-            catch (Exception)
+
+            if (mantenimiento.IdObra <= 0)
             {
-                throw; // Permite que el controlador capture cualquier error real de SQL
+                throw new ArgumentException(
+                    "Debe seleccionar una obra válida.",
+                    nameof(mantenimiento));
             }
+
+            if (mantenimiento.IdUsuario <= 0)
+            {
+                throw new ArgumentException(
+                    "El identificador del usuario no es válido.",
+                    nameof(mantenimiento));
+            }
+
+            using var conn =
+                new SqlConnection(_connectionString);
+
+            using var cmd = new SqlCommand(
+                "dbo.sp_RegistrarMantenimiento",
+                conn);
+
+            cmd.CommandType =
+                CommandType.StoredProcedure;
+
+            cmd.Parameters.Add(
+                "@IdObra",
+                SqlDbType.Int
+            ).Value = mantenimiento.IdObra;
+
+            cmd.Parameters.Add(
+                "@DescripcionTrabajo",
+                SqlDbType.NVarChar,
+                500
+            ).Value =
+                string.IsNullOrWhiteSpace(
+                    mantenimiento.DescripcionTrabajo)
+                    ? DBNull.Value
+                    : mantenimiento.DescripcionTrabajo.Trim();
+
+            var fechaParametro = new SqlParameter(
+                "@FechaMantenimiento",
+                SqlDbType.DateTime);
+
+            if (mantenimiento.FechaMantenimiento == default ||
+                mantenimiento.FechaMantenimiento <
+                new DateTime(1753, 1, 1))
+            {
+                fechaParametro.Value = DBNull.Value;
+            }
+            else
+            {
+                fechaParametro.Value =
+                    mantenimiento.FechaMantenimiento;
+            }
+
+            cmd.Parameters.Add(fechaParametro);
+
+            cmd.Parameters.Add(
+                "@IdUsuario",
+                SqlDbType.Int
+            ).Value = mantenimiento.IdUsuario;
+
+            conn.Open();
+
+            object? resultado =
+                cmd.ExecuteScalar();
+
+            if (resultado == null ||
+                resultado == DBNull.Value)
+            {
+                throw new InvalidOperationException(
+                    "El procedimiento almacenado no devolvió el IdMantenimiento.");
+            }
+
+            int idMantenimiento =
+                Convert.ToInt32(resultado);
+
+            if (idMantenimiento <= 0)
+            {
+                throw new InvalidOperationException(
+                    "El identificador devuelto por el procedimiento no es válido.");
+            }
+
+            return idMantenimiento;
         }
 
-        // 2. MÉTODO PARA LISTAR EN REPOSITORIO (Actualizado a INT)
+        // 2. LISTAR LOS MANTENIMIENTOS
         public List<Mantenimiento> ListarTodos()
         {
-            var lista = new List<Mantenimiento>();
+            var lista =
+                new List<Mantenimiento>();
 
-            try
+            using var conn =
+                new SqlConnection(_connectionString);
+
+            using var cmd = new SqlCommand(
+                "dbo.sp_ListarMantenimientos",
+                conn);
+
+            cmd.CommandType =
+                CommandType.StoredProcedure;
+
+            conn.Open();
+
+            using var reader =
+                cmd.ExecuteReader();
+
+            while (reader.Read())
             {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    using (var cmd = new SqlCommand("sp_ListarMantenimientos", conn))
+                var mantenimiento =
+                    new Mantenimiento
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        IdMantenimiento =
+                            ObtenerEntero(
+                                reader,
+                                "IdMantenimiento"),
 
-                        conn.Open();
-                        using (var reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                var mantenimiento = new Mantenimiento
-                                {
-                                    IdMantenimiento = reader["IdMantenimiento"] != DBNull.Value ? Convert.ToInt32(reader["IdMantenimiento"]) : 0,
-                                    IdObra = reader["IdObra"] != DBNull.Value ? Convert.ToInt32(reader["IdObra"]) : 0,
-                                    DescripcionTrabajo = reader["DescripcionTrabajo"] != DBNull.Value ? reader["DescripcionTrabajo"].ToString()! : string.Empty,
-                                    FechaMantenimiento = reader["FechaMantenimiento"] != DBNull.Value ? Convert.ToDateTime(reader["FechaMantenimiento"]) : DateTime.Now,
-                                    IdUsuario = reader["IdUsuario"] != DBNull.Value ? Convert.ToInt32(reader["IdUsuario"]) : 0
-                                };
-                                lista.Add(mantenimiento);
-                            }
-                        }
-                        conn.Close();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return new List<Mantenimiento>();
+                        IdObra =
+                            ObtenerEntero(
+                                reader,
+                                "IdObra"),
+
+                        DescripcionTrabajo =
+                            ObtenerTexto(
+                                reader,
+                                "DescripcionTrabajo"),
+
+                        FechaMantenimiento =
+                            ObtenerFecha(
+                                reader,
+                                "FechaMantenimiento"),
+
+                        IdUsuario =
+                            ObtenerEntero(
+                                reader,
+                                "IdUsuario")
+                    };
+
+                lista.Add(mantenimiento);
             }
 
             return lista;
         }
+
+        // 3. REGISTRAR UN PRODUCTO UTILIZADO
+        // El procedimiento debe insertar el detalle
+        // y descontar el stock.
+        public bool RegistrarProductoUsado(
+    int idMantenimiento,
+    int idProducto,
+    int cantidadUtilizada)
+        {
+            if (idMantenimiento <= 0)
+            {
+                throw new ArgumentException(
+                    "El identificador del mantenimiento no es válido.",
+                    nameof(idMantenimiento));
+            }
+
+            if (idProducto <= 0)
+            {
+                throw new ArgumentException(
+                    "El identificador del producto no es válido.",
+                    nameof(idProducto));
+            }
+
+            if (cantidadUtilizada <= 0)
+            {
+                throw new ArgumentException(
+                    "La cantidad utilizada debe ser mayor que cero.",
+                    nameof(cantidadUtilizada));
+            }
+
+            using var conn =
+                new SqlConnection(_connectionString);
+
+            conn.Open();
+
+            using var transaction =
+                conn.BeginTransaction();
+
+            try
+            {
+                using (var cmdRegistrar = new SqlCommand(
+                    "dbo.sp_Mantenimiento_RegistrarProducto",
+                    conn,
+                    transaction))
+                {
+                    cmdRegistrar.CommandType =
+                        CommandType.StoredProcedure;
+
+                    cmdRegistrar.Parameters.Add(
+                        "@IdMantenimiento",
+                        SqlDbType.Int
+                    ).Value = idMantenimiento;
+
+                    cmdRegistrar.Parameters.Add(
+                        "@IdProducto",
+                        SqlDbType.Int
+                    ).Value = idProducto;
+
+                    cmdRegistrar.Parameters.Add(
+                        "@CantidadUtilizada",
+                        SqlDbType.Int
+                    ).Value = cantidadUtilizada;
+
+                    cmdRegistrar.ExecuteNonQuery();
+                }
+
+                const string actualizarStockSql = @"
+            UPDATE dbo.Productos
+            SET Stock = Stock - @CantidadUtilizada
+            WHERE IdProducto = @IdProducto
+              AND Estado = 1
+              AND Stock >= @CantidadUtilizada;";
+
+                using (var cmdStock = new SqlCommand(
+                    actualizarStockSql,
+                    conn,
+                    transaction))
+                {
+                    cmdStock.CommandType =
+                        CommandType.Text;
+
+                    cmdStock.Parameters.Add(
+                        "@IdProducto",
+                        SqlDbType.Int
+                    ).Value = idProducto;
+
+                    cmdStock.Parameters.Add(
+                        "@CantidadUtilizada",
+                        SqlDbType.Int
+                    ).Value = cantidadUtilizada;
+
+                    int filasActualizadas =
+                        cmdStock.ExecuteNonQuery();
+
+                    if (filasActualizadas == 0)
+                    {
+                        throw new InvalidOperationException(
+                            "El producto no existe, está inactivo o no tiene stock suficiente.");
+                    }
+                }
+
+                transaction.Commit();
+
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        // 4. OBTENER PRODUCTOS DISPONIBLES
+        // Devuelve únicamente productos activos y con existencias.
+        public List<Producto> ObtenerProductosDisponibles()
+        {
+            var productos =
+                new List<Producto>();
+
+            using var conn =
+                new SqlConnection(_connectionString);
+
+            const string sql = @"
+            SELECT
+                IdProducto,
+                IdProveedor,
+                Codigo,
+                Nombre,
+                Descripcion,
+                Stock,
+                StockMinimo,
+                Precio,
+                Estado,
+                FechaRegistro
+            FROM dbo.Productos
+            WHERE Estado = 1
+              AND Stock > 0
+            ORDER BY Nombre ASC;";
+
+            using var cmd =
+                new SqlCommand(sql, conn);
+
+            conn.Open();
+
+            using var reader =
+                cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                var producto =
+                    new Producto
+                    {
+                        IdProducto =
+                            ObtenerEntero(
+                                reader,
+                                "IdProducto"),
+
+                        IdProveedor =
+                            ObtenerEntero(
+                                reader,
+                                "IdProveedor"),
+
+                        Codigo =
+                            ObtenerTexto(
+                                reader,
+                                "Codigo"),
+
+                        Nombre =
+                            ObtenerTexto(
+                                reader,
+                                "Nombre"),
+
+                        Descripcion =
+                            ObtenerTextoNullable(
+                                reader,
+                                "Descripcion"),
+
+                        Stock =
+                            ObtenerEntero(
+                                reader,
+                                "Stock"),
+
+                        StockMinimo =
+                            ObtenerEntero(
+                                reader,
+                                "StockMinimo"),
+
+                        Precio =
+                            ObtenerDecimal(
+                                reader,
+                                "Precio"),
+
+                        Estado =
+                            ObtenerBooleano(
+                                reader,
+                                "Estado"),
+
+                        FechaRegistro =
+                            ObtenerFecha(
+                                reader,
+                                "FechaRegistro")
+                    };
+
+                productos.Add(producto);
+            }
+
+            return productos;
+        }
+
+        // MÉTODOS AUXILIARES PARA LEER DATOS DE SQL SERVER
+
+        private static int ObtenerEntero(
+            SqlDataReader reader,
+            string nombreColumna)
+        {
+            int posicion =
+                reader.GetOrdinal(nombreColumna);
+
+            return reader.IsDBNull(posicion)
+                ? 0
+                : Convert.ToInt32(
+                    reader.GetValue(posicion));
+        }
+
+        private static decimal ObtenerDecimal(
+            SqlDataReader reader,
+            string nombreColumna)
+        {
+            int posicion =
+                reader.GetOrdinal(nombreColumna);
+
+            return reader.IsDBNull(posicion)
+                ? 0m
+                : Convert.ToDecimal(
+                    reader.GetValue(posicion));
+        }
+
+        private static bool ObtenerBooleano(
+            SqlDataReader reader,
+            string nombreColumna)
+        {
+            int posicion =
+                reader.GetOrdinal(nombreColumna);
+
+            return !reader.IsDBNull(posicion) &&
+                   Convert.ToBoolean(
+                       reader.GetValue(posicion));
+        }
+
+        private static string ObtenerTexto(
+            SqlDataReader reader,
+            string nombreColumna)
+        {
+            int posicion =
+                reader.GetOrdinal(nombreColumna);
+
+            return reader.IsDBNull(posicion)
+                ? string.Empty
+                : reader.GetString(posicion);
+        }
+
+        private static string? ObtenerTextoNullable(
+            SqlDataReader reader,
+            string nombreColumna)
+        {
+            int posicion =
+                reader.GetOrdinal(nombreColumna);
+
+            return reader.IsDBNull(posicion)
+                ? null
+                : reader.GetString(posicion);
+        }
+
+        private static DateTime ObtenerFecha(
+            SqlDataReader reader,
+            string nombreColumna)
+        {
+            int posicion =
+                reader.GetOrdinal(nombreColumna);
+
+            return reader.IsDBNull(posicion)
+                ? DateTime.Now
+                : Convert.ToDateTime(
+                    reader.GetValue(posicion));
+        }
     }
+
 }

@@ -14,6 +14,9 @@
 
 </div>
 
+<!-- ========================================== -->
+<!-- FORMULARIO 1: EDICIÓN DE DATOS DE LA OBRA -->
+<!-- ========================================== -->
 <div class="form-card">
 
     <form asp-controller="Obras"
@@ -82,7 +85,8 @@
 
                 <input asp-for="Codigo"
                        class="form-control"
-                       placeholder="Ejemplo: OBR-002" />
+                       placeholder="Ejemplo: OBR-002"
+                       readonly />
 
                 <span asp-validation-for="Codigo"
                       class="field-validation">
@@ -187,6 +191,61 @@
                 Guardar cambios
             </button>
 
+        </div>
+
+    </form>
+
+</div>
+
+<!-- ========================================== -->
+<!-- FORMULARIO 2: CONSUMO DE PRODUCTOS        -->
+<!-- ========================================== -->
+<div class="form-card" style="margin-top: 2rem;">
+
+    <div class="page-header" style="margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">
+        <h2>Productos e Insumos Utilizados</h2>
+        <p>Seleccione los productos consumidos para esta obra para reducirlos del inventario.</p>
+    </div>
+
+    <form asp-controller="Obras"
+          asp-action="RegistrarConsumoProducto"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <!-- Pasa el ID de la obra actual de manera oculta -->
+        <input type="hidden" name="IdObra" value="@Model.IdObra" />
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label for="IdProducto">Producto / Material</label>
+                <select id="IdProducto" name="IdProducto" class="form-control" required>
+                    <option value="">Seleccione un producto</option>
+                    @if (ViewBag.Productos != null)
+                    {
+                        foreach (var producto in ViewBag.Productos)
+                        {
+                            <option value="@producto.IdProducto">
+                                @producto.Nombre (Stock: @producto.Stock)
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="CantidadUsada">Cantidad a utilizar</label>
+                <input type="number" id="CantidadUsada" name="CantidadUsada"
+                       class="form-control" min="1" placeholder="Ejemplo: 3" required />
+            </div>
+
+        </div>
+
+        <div class="form-actions" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn-primary" style="background-color: #28a745; border-color: #28a745;">
+                Rebajar del Inventario
+            </button>
         </div>
 
     </form>

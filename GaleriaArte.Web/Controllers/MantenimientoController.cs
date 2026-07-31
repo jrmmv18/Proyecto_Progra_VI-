@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Linq;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
@@ -19,16 +18,27 @@ namespace GaleriaArte.Web.Controllers
         private readonly IMantenimientoRepository _mantenimientoRepository;
         private readonly string _connectionString;
 
-        // Constructor del Controlador
-        public MantenimientoController(IMantenimientoRepository mantenimientoRepository, IConfiguration configuration)
+        public MantenimientoController(
+            IMantenimientoRepository mantenimientoRepository,
+            IConfiguration configuration)
         {
-            _mantenimientoRepository = mantenimientoRepository ?? throw new ArgumentNullException(nameof(mantenimientoRepository));
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            _mantenimientoRepository = mantenimientoRepository
+                ?? throw new ArgumentNullException(
+                    nameof(mantenimientoRepository));
 
-            _connectionString = configuration.GetConnectionString("GaleriaArteDB") ?? string.Empty;
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(configuration));
+            }
+
+            _connectionString =
+                configuration.GetConnectionString("GaleriaArteDB")
+                ?? throw new InvalidOperationException(
+                    "No se encontró la cadena de conexión 'GaleriaArteDB'.");
         }
 
-        // T-16.8: GET: Mantenimiento (Vista del historial)
+        // GET: Mantenimiento
         public IActionResult Index(
             string? busqueda,
             DateTime? fechaInicio,
@@ -48,23 +58,29 @@ namespace GaleriaArte.Web.Controllers
 
             try
             {
-                var listaMantenimientos = _mantenimientoRepository.ListarTodos();
+                var listaMantenimientos =
+                    _mantenimientoRepository.ListarTodos();
 
                 var filtrados = listaMantenimientos
-                    .Where(mantenimiento => FiltroBusqueda.Coincide(
-                        busqueda,
-                        mantenimiento.DescripcionTrabajo))
-                    .Where(mantenimiento => FiltroBusqueda.EnRango(
-                        mantenimiento.FechaMantenimiento,
-                        fechaInicio,
-                        fechaFin));
+                    .Where(mantenimiento =>
+                        FiltroBusqueda.Coincide(
+                            busqueda,
+                            mantenimiento.DescripcionTrabajo))
+                    .Where(mantenimiento =>
+                        FiltroBusqueda.EnRango(
+                            mantenimiento.FechaMantenimiento,
+                            fechaInicio,
+                            fechaFin));
 
                 return View(
-                    ListaPaginada<Mantenimiento>.Crear(filtrados, paginacion));
+                    ListaPaginada<Mantenimiento>.Crear(
+                        filtrados,
+                        paginacion));
             }
             catch (Exception ex)
             {
-                ViewBag.Error = $"No se pudo cargar el historial: {ex.Message}";
+                ViewBag.Error =
+                    $"No se pudo cargar el historial: {ex.Message}";
 
                 return View(
                     ListaPaginada<Mantenimiento>.Crear(
@@ -73,99 +89,264 @@ namespace GaleriaArte.Web.Controllers
             }
         }
 
-        // T-16.8: GET: Mantenimiento/Crear (Muestra el formulario)
+        // GET: Mantenimiento/Crear
         [HttpGet]
         public IActionResult Crear()
         {
-            CargarObrasDesdeBD();
-            var nuevoMantenimiento = new Mantenimiento();
+            CargarListasFormulario();
+
+            var nuevoMantenimiento = new Mantenimiento
+            {
+                FechaMantenimiento = DateTime.Now,
+
+                // Crea inicialmente una fila para seleccionar producto.
+                ProductosUsados = new List<ProductoUsadoMantenimiento>
+                {
+                    new ProductoUsadoMantenimiento()
+                }
+            };
+
             return View(nuevoMantenimiento);
         }
 
-        // T-16.7 & T-16.9: POST: Mantenimiento/Crear (Procesa la transacción del formulario)
+        // POST: Mantenimiento/Crear
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Crear(Mantenimiento mantenimiento)
         {
             try
             {
-                // T-16.6: Integración automática del usuario autenticado
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int idUsuarioAutenticado))
-                {
-                    mantenimiento.IdUsuario = idUsuarioAutenticado;
-                }
-                else
-                {
-                    mantenimiento.IdUsuario = 1;
-                }
+                AsignarUsuarioAutenticado(mantenimiento);
+
+                // Eliminar filas completamente vacías creadas por el formulario.
+                mantenimiento.ProductosUsados ??=
+                    new List<ProductoUsadoMantenimiento>();
+
+                mantenimiento.ProductosUsados =
+                    mantenimiento.ProductosUsados
+                        .Where(producto =>
+                            producto.IdProducto > 0 ||
+                            producto.CantidadUtilizada > 0)
+                        .ToList();
+
+                ValidarProductosUsados(mantenimiento);
 
                 if (ModelState.IsValid)
                 {
-                    bool registroExitoso = _mantenimientoRepository.RegistrarMantenimientoCompleto(mantenimiento);
+                    // Ahora el repositorio devuelve el IdMantenimiento.
+                    int idMantenimiento =
+                        _mantenimientoRepository
+                            .RegistrarMantenimientoCompleto(
+                                mantenimiento);
 
-                    if (registroExitoso)
+                    if (idMantenimiento <= 0)
                     {
-                        return RedirectToAction(nameof(Index));
+                        throw new InvalidOperationException(
+                            "No se pudo obtener el identificador del mantenimiento.");
                     }
-                    else
+
+                    foreach (var producto in mantenimiento.ProductosUsados)
                     {
-                        ModelState.AddModelError(string.Empty, "La base de datos rechazó el registro. Verifique que el procedimiento almacenado esté respondiendo.");
+                        _mantenimientoRepository.RegistrarProductoUsado(
+                            idMantenimiento,
+                            producto.IdProducto,
+                            producto.CantidadUtilizada);
                     }
+
+                    TempData["MensajeExito"] =
+                        "El mantenimiento fue registrado correctamente y el inventario fue actualizado.";
+
+                    return RedirectToAction(nameof(Index));
                 }
-                else
+
+                var errores = string.Join(
+                    " | ",
+                    ModelState.Values
+                        .SelectMany(valor => valor.Errors)
+                        .Select(error =>
+                            !string.IsNullOrWhiteSpace(error.ErrorMessage)
+                                ? error.ErrorMessage
+                                : error.Exception?.Message)
+                        .Where(mensaje =>
+                            !string.IsNullOrWhiteSpace(mensaje)));
+
+                if (!string.IsNullOrWhiteSpace(errores))
                 {
-                    // DETECTOR DE ERRORES OCULTOS: Si falta un campo requerido, esto nos dirá cuál es
-                    var errores = string.Join(" | ", ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage));
-
-                    ModelState.AddModelError(string.Empty, $"Validación fallida en el servidor: {errores}");
+                    ModelState.AddModelError(
+                        string.Empty,
+                        $"Validación fallida: {errores}");
                 }
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    $"Error de base de datos: {ex.Message}");
             }
             catch (Exception ex)
             {
-                // Muestra el mensaje real de SQL Server (Como errores de Foreign Key o Triggers)
-                ModelState.AddModelError(string.Empty, $"Error crítico: {ex.Message}");
+                ModelState.AddModelError(
+                    string.Empty,
+                    $"No se pudo registrar el mantenimiento: {ex.Message}");
             }
 
-            CargarObrasDesdeBD(); // Recarga obligatoria para que el dropdown no se borre
+            CargarListasFormulario();
+
             return View(mantenimiento);
         }
 
-        // METODO AUTÓNOMO: Consulta directa a SQL para alimentar el Dropdown
-        private void CargarObrasDesdeBD()
+        private void AsignarUsuarioAutenticado(
+            Mantenimiento mantenimiento)
         {
-            var selectList = new List<SelectListItem>();
+            string? userIdClaim =
+                User.FindFirst(
+                    ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrWhiteSpace(userIdClaim) &&
+                int.TryParse(
+                    userIdClaim,
+                    out int idUsuarioAutenticado))
+            {
+                mantenimiento.IdUsuario =
+                    idUsuarioAutenticado;
+            }
+            else
+            {
+                // Valor temporal de respaldo.
+                mantenimiento.IdUsuario = 1;
+            }
+        }
+
+        private void ValidarProductosUsados(
+            Mantenimiento mantenimiento)
+        {
+            if (mantenimiento.ProductosUsados == null)
+            {
+                return;
+            }
+
+            for (int i = 0;
+                 i < mantenimiento.ProductosUsados.Count;
+                 i++)
+            {
+                var producto =
+                    mantenimiento.ProductosUsados[i];
+
+                if (producto.IdProducto <= 0)
+                {
+                    ModelState.AddModelError(
+                        $"ProductosUsados[{i}].IdProducto",
+                        "Debe seleccionar un producto.");
+                }
+
+                if (producto.CantidadUtilizada <= 0)
+                {
+                    ModelState.AddModelError(
+                        $"ProductosUsados[{i}].CantidadUtilizada",
+                        "La cantidad utilizada debe ser mayor que cero.");
+                }
+            }
+
+            var productosDuplicados =
+                mantenimiento.ProductosUsados
+                    .Where(producto =>
+                        producto.IdProducto > 0)
+                    .GroupBy(producto =>
+                        producto.IdProducto)
+                    .Where(grupo =>
+                        grupo.Count() > 1)
+                    .Select(grupo =>
+                        grupo.Key)
+                    .ToList();
+
+            if (productosDuplicados.Any())
+            {
+                ModelState.AddModelError(
+                    nameof(mantenimiento.ProductosUsados),
+                    "No debe seleccionar el mismo producto más de una vez.");
+            }
+        }
+
+        private void CargarListasFormulario()
+        {
+            CargarObrasDesdeBD();
+            CargarProductosDisponibles();
+        }
+
+        private void CargarProductosDisponibles()
+        {
             try
             {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    string query = "SELECT IdObra, Codigo, Nombre FROM Obras ORDER BY Nombre ASC";
-                    using (var cmd = new SqlCommand(query, conn))
-                    {
-                        conn.Open();
-                        using (var reader = cmd.ExecuteReader())
+                var productos =
+                    _mantenimientoRepository
+                        .ObtenerProductosDisponibles();
+
+                ViewBag.ProductosDisponibles =
+                    productos.Select(producto =>
+                        new SelectListItem
                         {
-                            while (reader.Read())
-                            {
-                                selectList.Add(new SelectListItem
-                                {
-                                    Value = reader["IdObra"].ToString(),
-                                    Text = $"{reader["Codigo"]} - {reader["Nombre"]}"
-                                });
-                            }
-                        }
-                        conn.Close();
-                    }
+                            Value =
+                                producto.IdProducto.ToString(),
+
+                            Text =
+                                $"{producto.Nombre} - Stock: {producto.Stock}"
+                        })
+                    .ToList();
+            }
+            catch (Exception)
+            {
+                ViewBag.ProductosDisponibles =
+                    new List<SelectListItem>();
+            }
+        }
+
+        private void CargarObrasDesdeBD()
+        {
+            var selectList =
+                new List<SelectListItem>();
+
+            try
+            {
+                using var conn =
+                    new SqlConnection(_connectionString);
+
+                const string query = @"
+                    SELECT
+                        IdObra,
+                        Codigo,
+                        Nombre
+                    FROM dbo.Obras
+                    ORDER BY Nombre ASC;";
+
+                using var cmd =
+                    new SqlCommand(query, conn);
+
+                conn.Open();
+
+                using var reader =
+                    cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    selectList.Add(
+                        new SelectListItem
+                        {
+                            Value =
+                                reader["IdObra"].ToString(),
+
+                            Text =
+                                $"{reader["Codigo"]} - {reader["Nombre"]}"
+                        });
                 }
             }
             catch (Exception)
             {
-                // Respaldo de lista vacía en caso de fallo
+                selectList =
+                    new List<SelectListItem>();
             }
 
-            ViewBag.ObrasDisponibles = selectList;
+            ViewBag.ObrasDisponibles =
+                selectList;
         }
     }
 }

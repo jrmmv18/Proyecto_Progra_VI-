@@ -14,7 +14,7 @@ namespace GaleriaArte.Web.Models
         [Display(Name = "Categoría")]
         public int IdCategoria { get; set; }
 
-        [Required(ErrorMessage = "El código es obligatorio.")]
+        [Required]
         [StringLength(30)]
         [Display(Name = "Código")]
         public string Codigo { get; set; } = string.Empty;
