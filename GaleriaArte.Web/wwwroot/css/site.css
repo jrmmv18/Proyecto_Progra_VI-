@@ -1597,3 +1597,117 @@ textarea {
 .value.valor-nulo {
     color: #15171c;
 }
+
+/* =====================================================
+   MODULO ACERCA DE
+===================================================== */
+
+.about-card {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 28px;
+    background: white;
+    border: 1px solid #dedfe3;
+    border-radius: 12px;
+}
+
+    .about-card h2 {
+        margin: 0 0 14px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .about-card p {
+        margin: 0 0 14px;
+        color: #444952;
+        line-height: 1.7;
+    }
+
+        .about-card p:last-child {
+            margin-bottom: 0;
+        }
+
+/* Dos tarjetas por fila en pantallas amplias */
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+    .about-grid .about-card {
+        margin-bottom: 20px;
+    }
+
+
+/* Servicios de la galeria */
+
+.about-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.about-item {
+    padding: 16px 18px;
+    background: #f8f8f9;
+    border-radius: 10px;
+}
+
+.about-item-title {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.about-item-text {
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* Datos de contacto y del sistema */
+
+.about-dato {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #ececef;
+}
+
+    .about-dato:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+.about-etiqueta {
+    flex: 0 0 110px;
+    color: #777e89;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   RESPONSIVE DEL MODULO ACERCA DE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .about-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .about-card {
+        padding: 20px;
+    }
+
+    .about-dato {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .about-etiqueta {
+        flex: none;
+    }
+}
