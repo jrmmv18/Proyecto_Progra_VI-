@@ -19,6 +19,13 @@
 
 <body>
 
+@* Aplica el tema guardado antes de pintar la pagina, para que no parpadee *@
+<script>
+    if (localStorage.getItem("galeriaArte.tema") === "oscuro") {
+        document.body.classList.add("tema-oscuro");
+    }
+</script>
+
 @{
     var controlador = ViewContext.RouteData.Values["Controller"]?.ToString();
 
@@ -174,6 +181,21 @@
 </a>
 
 
+        <div class="tema-switch">
+
+            <span class="tema-texto">Modo oscuro</span>
+
+            <button type="button"
+                    id="btnTema"
+                    class="tema-toggle"
+                    role="switch"
+                    aria-checked="false"
+                    aria-label="Cambiar entre modo claro y oscuro">
+                <span class="tema-bolita"></span>
+            </button>
+
+        </div>
+
         <div class="logout">
 
             <form asp-controller="Account"
@@ -220,6 +242,8 @@
 
 <!-- NUEVO: Forzamos la inclusión global de tu script recuperado de la barra lateral -->
 <script src="~/js/sidebar-toggle.js" asp-append-version="true"></script>
+
+<script src="~/js/tema.js" asp-append-version="true"></script>
 
 @await RenderSectionAsync(
     "Scripts",

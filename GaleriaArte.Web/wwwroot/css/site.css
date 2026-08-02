@@ -1711,3 +1711,260 @@ textarea {
         flex: none;
     }
 }
+
+/* =====================================================
+   INTERRUPTOR DE TEMA EN LA BARRA LATERAL
+===================================================== */
+
+.tema-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 12px 13px;
+}
+
+.tema-texto {
+    color: #aeb3bd;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* Riel del interruptor */
+.tema-toggle {
+    position: relative;
+    flex: 0 0 auto;
+    width: 52px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #dcdcdc;
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+/* Bolita que se desliza de un extremo al otro */
+.tema-bolita {
+    position: absolute;
+    top: 3px;
+    left: 27px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    transition: left 0.25s ease, background 0.25s ease;
+}
+
+.tema-toggle[aria-checked="true"] {
+    background: #24272f;
+}
+
+    .tema-toggle[aria-checked="true"] .tema-bolita {
+        left: 3px;
+        background: #FBF8F4;
+    }
+
+
+/* =====================================================
+   MODO OSCURO
+   El contenido toma el color que tiene la barra lateral
+   y la barra lateral pasa al color claro del contenido.
+===================================================== */
+
+body.tema-oscuro {
+    background: #24272f;
+    color: #eceef1;
+}
+
+    body.tema-oscuro .main {
+        background: #24272f;
+    }
+
+    body.tema-oscuro .page-header p,
+    body.tema-oscuro .text-muted {
+        color: #a8aeb9;
+    }
+
+
+/* Barra lateral: recibe el color claro del contenido */
+
+body.tema-oscuro .sidebar {
+    background: #FBF8F4;
+    color: #15171c;
+}
+
+    body.tema-oscuro .brand-title,
+    body.tema-oscuro .user-name,
+    body.tema-oscuro .menu-link {
+        color: #15171c;
+    }
+
+    body.tema-oscuro .brand-subtitle,
+    body.tema-oscuro .user-role,
+    body.tema-oscuro .menu-title,
+    body.tema-oscuro .tema-texto {
+        color: #6b7280;
+    }
+
+    body.tema-oscuro .user-avatar {
+        color: #24272f;
+    }
+
+    body.tema-oscuro .menu-link:hover {
+        background: linear-gradient(90deg, #ece6df, #e2dbd2);
+        color: #15171c;
+    }
+
+    body.tema-oscuro .menu-link.active {
+        background: #24272f;
+        color: white;
+    }
+
+    body.tema-oscuro .menu-divider {
+        background: #ddd6cd;
+    }
+
+    body.tema-oscuro .logout button {
+        border-color: #c9c2b8;
+        color: #15171c;
+    }
+
+
+/* Tarjetas y tablas */
+
+body.tema-oscuro .table-card,
+body.tema-oscuro .form-card,
+body.tema-oscuro .about-card,
+body.tema-oscuro .dashboard-card {
+    background: #2f3340;
+    border-color: #3d4250;
+}
+
+body.tema-oscuro .data-table th {
+    background: #363b4a;
+    color: #cfd4dc;
+    border-color: #444a5a;
+}
+
+body.tema-oscuro .data-table td {
+    border-color: #3d4250;
+}
+
+body.tema-oscuro .data-table tbody tr:hover {
+    background: #363b4a;
+}
+
+body.tema-oscuro .obra-name,
+body.tema-oscuro .artist-name,
+body.tema-oscuro .value,
+body.tema-oscuro .about-card h2,
+body.tema-oscuro .dashboard-title,
+body.tema-oscuro .card-title,
+body.tema-oscuro .card-value {
+    color: #f2f4f7;
+}
+
+body.tema-oscuro .obra-code,
+body.tema-oscuro .category-name,
+body.tema-oscuro .secondary-text,
+body.tema-oscuro .descripcion-trabajo,
+body.tema-oscuro .empty,
+body.tema-oscuro .about-card p,
+body.tema-oscuro .dashboard-subtitle,
+body.tema-oscuro .card-description {
+    color: #a8aeb9;
+}
+
+body.tema-oscuro .about-item {
+    background: #363b4a;
+}
+
+body.tema-oscuro .about-dato {
+    border-color: #3d4250;
+}
+
+
+/* Campos de formulario y filtros */
+
+body.tema-oscuro .form-control {
+    background: #363b4a;
+    border-color: #4a5162;
+    color: #eceef1;
+}
+
+    body.tema-oscuro .form-control::placeholder {
+        color: #8c93a1;
+    }
+
+body.tema-oscuro .form-group label,
+body.tema-oscuro .filter-label {
+    color: #a8aeb9;
+}
+
+
+/* Botones */
+
+body.tema-oscuro .btn-primary,
+body.tema-oscuro .btn-filter,
+body.tema-oscuro .btn-toggle-menu {
+    background: #f4f5f7;
+    border-color: #f4f5f7;
+    color: #15171c;
+}
+
+    body.tema-oscuro .btn-primary:hover,
+    body.tema-oscuro .btn-filter:hover,
+    body.tema-oscuro .btn-toggle-menu:hover {
+        background: white;
+        color: #15171c;
+    }
+
+body.tema-oscuro .btn-secondary,
+body.tema-oscuro .btn-edit,
+body.tema-oscuro .btn-state,
+body.tema-oscuro .btn-exit {
+    background: #3d4250;
+    border-color: #4a5162;
+    color: #eceef1;
+}
+
+body.tema-oscuro .btn-filter-clear {
+    color: #a8aeb9;
+}
+
+    body.tema-oscuro .btn-filter-clear:hover {
+        background: #363b4a;
+        color: #f2f4f7;
+    }
+
+
+/* Paginacion */
+
+body.tema-oscuro .page-link {
+    color: #a8aeb9;
+}
+
+    body.tema-oscuro .page-link:hover {
+        background: #363b4a;
+        color: #f2f4f7;
+    }
+
+    body.tema-oscuro .page-link.active {
+        background: #f4f5f7;
+        color: #15171c;
+    }
+
+    body.tema-oscuro .page-link.disabled {
+        color: #5f6674;
+    }
+
+
+/* Mensajes del sistema */
+
+body.tema-oscuro .message {
+    background: #2f3340;
+    color: #eceef1;
+}
