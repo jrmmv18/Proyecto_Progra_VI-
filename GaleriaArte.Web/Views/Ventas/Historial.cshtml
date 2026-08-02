@@ -1,0 +1,138 @@
+﻿@model List<GaleriaArte.Web.Models.Factura>
+
+@{
+    ViewData["Title"] = "Historial de ventas";
+}
+
+<div class="page-header page-header-actions">
+
+    <div>
+        <h1>Historial de ventas</h1>
+        <p>Consulta de las facturas registradas en el sistema.</p>
+    </div>
+
+    <a asp-controller="Ventas"
+       asp-action="Index"
+       class="btn-primary">
+        + Nueva venta
+    </a>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="table-card">
+
+        <div class="empty">
+            No hay ventas registradas.
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Método de pago</th>
+                        <th>Vendedor</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var factura in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    #@factura.IdFactura
+                                </strong>
+                            </td>
+
+                            <td>
+                                @factura.NombreCliente
+                            </td>
+
+                            <td>
+                                @factura.FechaFactura.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                @factura.MetodoPago
+                            </td>
+
+                            <td>
+                                @factura.NombreUsuario
+                            </td>
+
+                            <td>
+                                <strong>
+                                    ₡@factura.Total.ToString("N2")
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                @if (factura.IdEstadoFactura == 1)
+                                {
+                                    <span class="badge status-active">
+                                        @factura.EstadoFactura
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-inactive">
+                                        @factura.EstadoFactura
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <div class="table-actions">
+
+                                    <a asp-controller="Ventas"
+                                       asp-action="Detalle"
+                                       asp-route-id="@factura.IdFactura"
+                                       class="btn-edit">
+                                        Ver detalle
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

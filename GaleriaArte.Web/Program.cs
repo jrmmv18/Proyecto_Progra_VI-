@@ -1,6 +1,9 @@
 using GaleriaArte.Web.Data;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Servicios MVC
 builder.Services.AddControllersWithViews();
@@ -14,6 +17,8 @@ builder.Services.AddScoped<ProveedorRepository>();
 builder.Services.AddScoped<ProductoRepository>();
 builder.Services.AddScoped<VisitaRepository>();
 builder.Services.AddScoped<DashboardRepository>();
+builder.Services.AddScoped<FacturaRepository>();
+builder.Services.AddScoped<ClienteRepository>();
 
 // NUEVO: Registro ordenado para módulo de mantenimiento (HU-11)
 builder.Services.AddScoped<GaleriaArte.Web.Data.IMantenimientoRepository, GaleriaArte.Web.Data.MantenimientoRepository>();

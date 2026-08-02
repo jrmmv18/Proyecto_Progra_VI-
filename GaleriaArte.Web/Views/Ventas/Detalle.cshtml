@@ -1,0 +1,545 @@
+﻿@model GaleriaArte.Web.Models.Factura
+
+@{
+    ViewData["Title"] = $"Factura #{Model.IdFactura}";
+}
+
+<div class="page-header page-header-actions no-print">
+
+    <div>
+        <h1>Detalle de factura</h1>
+        <p>Información completa de la venta registrada.</p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <a asp-controller="Ventas"
+           asp-action="Historial"
+           class="btn-secondary">
+            Volver al historial
+        </a>
+
+        <a asp-controller="Ventas"
+           asp-action="Pdf"
+           asp-route-id="@Model.IdFactura"
+           class="btn-secondary">
+
+            <i class="bi bi-file-earmark-pdf"></i>
+            Descargar PDF
+
+        </a>
+
+        @if (Model.IdEstadoFactura == 1)
+        {
+            <form asp-controller="Ventas"
+                  asp-action="Anular"
+                  asp-route-id="@Model.IdFactura"
+                  method="post"
+                  onsubmit="return confirm('¿Está seguro de que desea anular esta factura? Las obras volverán a estar disponibles.');">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn-state">
+
+                    <i class="bi bi-x-circle"></i>
+                    Anular factura
+
+                </button>
+
+            </form>
+        }
+
+        <button type="button"
+                class="btn-primary"
+                onclick="window.print()">
+
+            <i class="bi bi-printer"></i>
+            Imprimir
+
+        </button>
+
+    </div>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message no-print">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="text-danger mb-3 no-print">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="invoice-card"
+     id="facturaImprimible">
+
+    <div class="invoice-header">
+
+        <div class="invoice-brand">
+
+            <img src="~/images/logo2.png"
+                 alt="Galería de Arte"
+                 class="invoice-logo" />
+
+            <div>
+
+                <h2>Galería de Arte</h2>
+
+                <p>
+                    Comprobante de venta de obras de arte
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="invoice-number">
+
+            <span>FACTURA</span>
+
+            <strong>
+                #@Model.IdFactura
+            </strong>
+
+        </div>
+
+    </div>
+
+    <div class="invoice-divider"></div>
+
+    <div class="invoice-information">
+
+        <div class="invoice-section">
+
+            <h3>Información del cliente</h3>
+
+            <div class="invoice-data-row">
+
+                <span>Cliente:</span>
+
+                <strong>
+                    @Model.NombreCliente
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="invoice-section">
+
+            <h3>Información de la venta</h3>
+
+            <div class="invoice-data-row">
+
+                <span>Fecha:</span>
+
+                <strong>
+                    @Model.FechaFactura.ToString("dd/MM/yyyy HH:mm")
+                </strong>
+
+            </div>
+
+            <div class="invoice-data-row">
+
+                <span>Método de pago:</span>
+
+                <strong>
+                    @Model.MetodoPago
+                </strong>
+
+            </div>
+
+            <div class="invoice-data-row">
+
+                <span>Vendedor:</span>
+
+                <strong>
+                    @Model.NombreUsuario
+                </strong>
+
+            </div>
+
+            <div class="invoice-data-row">
+
+                <span>Estado:</span>
+
+                @if (Model.IdEstadoFactura == 1)
+                {
+                    <span class="badge status-active">
+                        @Model.EstadoFactura
+                    </span>
+                }
+                else
+                {
+                    <span class="badge status-inactive">
+                        @Model.EstadoFactura
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="invoice-detail">
+
+        <h3>Obras adquiridas</h3>
+
+        @if (Model.Detalles == null || Model.Detalles.Count == 0)
+        {
+            <div class="empty">
+                La factura no contiene obras registradas.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="data-table invoice-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Código</th>
+                            <th>Obra</th>
+                            <th>Cantidad</th>
+                            <th>Precio unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var detalle in Model.Detalles)
+                        {
+                            <tr>
+
+                                <td>
+                                    @detalle.CodigoObra
+                                </td>
+
+                                <td>
+
+                                    <div class="obra-name">
+                                        @detalle.NombreObra
+                                    </div>
+
+                                </td>
+
+                                <td>
+                                    @detalle.Cantidad
+                                </td>
+
+                                <td>
+                                    ₡@detalle.PrecioUnitario.ToString("N2")
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        ₡@detalle.Subtotal.ToString("N2")
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="invoice-summary">
+
+        <div class="invoice-summary-content">
+
+            <div class="invoice-total-row">
+
+                <span>Subtotal</span>
+
+                <strong>
+                    ₡@Model.Subtotal.ToString("N2")
+                </strong>
+
+            </div>
+
+            <div class="invoice-total-row">
+
+                <span>IVA (13%)</span>
+
+                <strong>
+                    ₡@Model.Impuesto.ToString("N2")
+                </strong>
+
+            </div>
+
+            <div class="invoice-total-row invoice-grand-total">
+
+                <span>Total</span>
+
+                <strong>
+                    ₡@Model.Total.ToString("N2")
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="invoice-footer">
+
+        <p>
+            Gracias por su compra.
+        </p>
+
+        <small>
+            Documento generado por el Sistema de Gestión de la Galería de Arte.
+        </small>
+
+    </div>
+
+</div>
+
+<div class="d-flex gap-2 mt-4 no-print">
+
+    <a asp-controller="Ventas"
+       asp-action="Index"
+       class="btn-primary">
+        Registrar otra venta
+    </a>
+
+    <a asp-controller="Ventas"
+       asp-action="Historial"
+       class="btn-secondary">
+        Ver historial
+    </a>
+
+    <a asp-controller="Ventas"
+       asp-action="Pdf"
+       asp-route-id="@Model.IdFactura"
+       class="btn-secondary">
+
+        <i class="bi bi-file-earmark-pdf"></i>
+        Descargar PDF
+
+    </a>
+
+</div>
+
+<style>
+    .invoice-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .invoice-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .invoice-brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .invoice-logo {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+    }
+
+    .invoice-brand h2 {
+        margin: 0 0 4px;
+    }
+
+    .invoice-brand p {
+        margin: 0;
+        color: #6c757d;
+    }
+
+    .invoice-number {
+        text-align: right;
+    }
+
+    .invoice-number span {
+        display: block;
+        color: #6c757d;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+
+    .invoice-number strong {
+        display: block;
+        font-size: 1.8rem;
+    }
+
+    .invoice-divider {
+        height: 1px;
+        margin: 28px 0;
+        background: #e8e8e8;
+    }
+
+    .invoice-information {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+
+    .invoice-section {
+        padding: 20px;
+        border: 1px solid #e8e8e8;
+        border-radius: 10px;
+    }
+
+    .invoice-section h3,
+    .invoice-detail h3 {
+        margin-top: 0;
+        margin-bottom: 18px;
+        font-size: 1.05rem;
+    }
+
+    .invoice-data-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .invoice-data-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .invoice-data-row span:first-child {
+        color: #6c757d;
+    }
+
+    .invoice-detail {
+        margin-top: 10px;
+    }
+
+    .invoice-summary {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 28px;
+    }
+
+    .invoice-summary-content {
+        width: 100%;
+        max-width: 380px;
+    }
+
+    .invoice-total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eeeeee;
+    }
+
+    .invoice-grand-total {
+        margin-top: 6px;
+        padding-top: 16px;
+        font-size: 1.25rem;
+        border-bottom: 0;
+    }
+
+    .invoice-footer {
+        margin-top: 34px;
+        padding-top: 22px;
+        text-align: center;
+        border-top: 1px solid #e8e8e8;
+    }
+
+    .invoice-footer p {
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .invoice-footer small {
+        color: #6c757d;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header-actions > .d-flex {
+            flex-wrap: wrap;
+        }
+
+        .invoice-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .invoice-number {
+            text-align: left;
+        }
+
+        .invoice-information {
+            grid-template-columns: 1fr;
+        }
+
+        .invoice-card {
+            padding: 20px;
+        }
+    }
+
+    @@media print {
+        body {
+            background: #ffffff !important;
+        }
+
+        .sidebar,
+        .global-toggle-container,
+        .no-print {
+            display: none !important;
+        }
+
+        .app,
+        .main {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .invoice-card {
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .table-responsive {
+            overflow: visible !important;
+        }
+
+        .invoice-table {
+            width: 100%;
+        }
+
+        @@page {
+            size: A4;
+            margin: 15mm;
+        }
+    }
+</style>
