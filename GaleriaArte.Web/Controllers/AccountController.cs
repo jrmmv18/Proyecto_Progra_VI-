@@ -13,6 +13,7 @@ namespace GaleriaArte.Web.Controllers
         public AccountController(UsuarioRepository usuarioRepository)
         {
             _usuarioRepository = usuarioRepository;
+            . 
         }
 
         // Mostrar formulario de inicio de sesión
