@@ -1,0 +1,111 @@
+﻿@model GaleriaArte.Web.Models.BitacoraGeneral
+
+@{
+    ViewData["Title"] = "Detalle de Auditoría";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            <h3 class="mb-0">
+                <i class="bi bi-journal-text"></i>
+                Detalle de Auditoría
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+
+                <div class="col-md-6">
+                    <strong>Fecha:</strong><br />
+                    @Model.FechaHora
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Usuario:</strong><br />
+                    @Model.NombreUsuario
+                </div>
+
+            </div>
+
+            <div class="row mb-3">
+
+                <div class="col-md-4">
+                    <strong>Módulo</strong><br />
+                    @Model.Modulo
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Tabla</strong><br />
+                    @Model.TablaAfectada
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Operación</strong><br />
+                    @Model.TipoOperacion
+                </div>
+
+            </div>
+
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+                    <strong>Registro afectado</strong><br />
+                    @Model.RegistroAfectado
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Resultado</strong><br />
+
+                    @if (Model.Resultado == "EXITOSO")
+                    {
+                        <span class="badge bg-success">@Model.Resultado</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">@Model.Resultado</span>
+                    }
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <h5>Valor anterior</h5>
+
+            <div class="border rounded p-3 bg-light mb-4">
+
+                <pre style="white-space:pre-wrap">@Model.ValorAnterior</pre>
+
+            </div>
+
+            <h5>Valor nuevo</h5>
+
+            <div class="border rounded p-3 bg-light">
+
+                <pre style="white-space:pre-wrap">@Model.ValorNuevo</pre>
+
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+
+                ← Regresar
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

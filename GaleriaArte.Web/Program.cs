@@ -13,6 +13,7 @@ builder.Services.AddScoped<ObraRepository>();
 builder.Services.AddScoped<ProveedorRepository>();
 builder.Services.AddScoped<ProductoRepository>();
 builder.Services.AddScoped<DashboardRepository>();
+builder.Services.AddScoped<BitacoraRepository>();
 
 // Autenticación mediante cookies
 builder.Services.AddAuthentication("GaleriaArteCookie")
