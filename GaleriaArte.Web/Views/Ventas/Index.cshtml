@@ -1,14 +1,14 @@
-﻿@model GaleriaArte.Web.Models.VentaCrearViewModel
+@model GaleriaArte.Web.Models.VentaCrearViewModel
 
 @{
-    ViewData["Title"] = "Ventas";
+    ViewData["Title"] = "Registrar venta";
 }
 
 <div class="page-header page-header-actions">
 
     <div>
-        <h1>Ventas</h1>
-        <p>Registro de compras hechas por los visitantes.</p>
+        <h1>Registrar venta</h1>
+        <p>Compra realizada por un visitante durante su visita.</p>
     </div>
 
     <a asp-controller="Ventas"
@@ -28,258 +28,81 @@
 
 <form asp-controller="Ventas"
       asp-action="Index"
-      method="post"
-      id="ventaForm">
+      method="post">
 
     @Html.AntiForgeryToken()
 
     <div asp-validation-summary="ModelOnly"
-         class="text-danger mb-3">
+         class="validation-summary">
     </div>
 
-    <div class="table-card mb-4">
+    <div class="form-card">
 
-        <div class="p-4">
+        <div class="form-grid">
 
-            <div class="row">
+            <div class="form-group">
 
-                <div class="col-md-8 mb-3">
+                <label asp-for="IdCliente"></label>
 
-                    <label asp-for="IdCliente"
-                           class="form-label">
-                    </label>
+                <select asp-for="IdCliente"
+                        class="form-control">
 
-                    <select asp-for="IdCliente"
-                            class="form-select">
+                    <option value="">
+                        Seleccione un visitante
+                    </option>
 
-                        <option value="">
-                            Seleccione un visitante
+                    @foreach (var cliente in Model.ClientesDisponibles)
+                    {
+                        <option value="@cliente.IdCliente">
+                            @cliente.NombreCompleto
                         </option>
-
-                        @foreach (var cliente in Model.ClientesDisponibles)
-                        {
-                            <option value="@cliente.IdCliente">
-                                @cliente.NombreCompleto
-                            </option>
-                        }
-
-                    </select>
-
-                    <span asp-validation-for="IdCliente"
-                          class="text-danger">
-                    </span>
-
-                    @if (Model.ClientesDisponibles.Count == 0)
-                    {
-                        <div class="secondary-text mt-2">
-                            No hay visitantes dentro de la galería.
-                            Registre la entrada en el módulo de Visitas
-                            antes de facturar.
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="secondary-text mt-2">
-                            Solo aparecen los visitantes que están dentro
-                            de la galería. La compra queda ligada a su visita.
-                        </div>
                     }
 
-                </div>
+                </select>
 
-                <div class="col-md-4 mb-3">
-
-                    <label asp-for="MetodoPago"
-                           class="form-label">
-                    </label>
-
-                    <select asp-for="MetodoPago"
-                            class="form-select">
-
-                        <option value="">
-                            Seleccione
-                        </option>
-
-                        <option value="Efectivo">
-                            Efectivo
-                        </option>
-
-                        <option value="Tarjeta">
-                            Tarjeta
-                        </option>
-
-                        <option value="Transferencia">
-                            Transferencia
-                        </option>
-
-                    </select>
-
-                    <span asp-validation-for="MetodoPago"
-                          class="text-danger">
-                    </span>
-
-                </div>
+                <span asp-validation-for="IdCliente"
+                      class="field-validation">
+                </span>
 
             </div>
 
-        </div>
+            <div class="form-group">
 
-    </div>
+                <label asp-for="MetodoPago"></label>
 
-    <div class="row">
+                <select asp-for="MetodoPago"
+                        class="form-control">
 
-        <div class="col-lg-8">
+                    <option value="">
+                        Seleccione
+                    </option>
 
-            <div class="table-card">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Tarjeta">Tarjeta</option>
+                    <option value="Transferencia">Transferencia</option>
 
-                <div class="p-4 border-bottom">
+                </select>
 
-                    <h3 class="mb-1">
-                        Productos disponibles
-                    </h3>
+                <span asp-validation-for="MetodoPago"
+                      class="field-validation">
+                </span>
 
-                    <p class="text-muted mb-3">
-                        Marque los productos e indique la cantidad.
-                        El inventario se rebaja al registrar la venta.
-                    </p>
+            </div>
 
-                    @if (Model.ProductosDisponibles.Count > 0)
-                    {
-                        <div class="position-relative">
+            <div class="form-group full-width">
 
-                            <i class="bi bi-search search-icon"></i>
-
-                            <input type="search"
-                                   id="buscarProducto"
-                                   class="form-control search-input"
-                                   placeholder="Buscar por nombre, código o proveedor..."
-                                   autocomplete="off" />
-
-                        </div>
-                    }
-
-                </div>
-
-                @if (Model.ProductosDisponibles.Count == 0)
+                @if (Model.ClientesDisponibles.Count == 0)
                 {
-                    <div class="empty">
-                        No hay productos con existencias para vender.
+                    <div class="secondary-text">
+                        No hay visitantes dentro de la galería. Registre la
+                        entrada en el módulo de Visitas antes de facturar.
                     </div>
                 }
                 else
                 {
-                    <div class="table-responsive">
-
-                        <table class="data-table"
-                               id="tablaProductos">
-
-                            <thead>
-
-                                <tr>
-                                    <th>Seleccionar</th>
-                                    <th>Producto</th>
-                                    <th>Proveedor</th>
-                                    <th>Existencias</th>
-                                    <th>Precio</th>
-                                    <th>Cantidad</th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                @foreach (var producto in Model.ProductosDisponibles)
-                                {
-                                    string textoBusqueda =
-                                        $"{producto.Nombre} {producto.Codigo} {producto.NombreProveedor}";
-
-                                    <tr class="producto-row"
-                                        data-busqueda="@textoBusqueda">
-
-                                        <td>
-
-                                            <input type="checkbox"
-                                                   class="form-check-input producto-check"
-                                                   data-id="@producto.IdProducto"
-                                                   data-nombre="@producto.Nombre"
-                                                   data-stock="@producto.Stock"
-                                                   data-precio="@producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
-
-                                        </td>
-
-                                        <td>
-
-                                            <div class="obra-name">
-                                                @producto.Nombre
-                                            </div>
-
-                                            <div class="obra-code">
-                                                @producto.Codigo
-                                            </div>
-
-                                        </td>
-
-                                        <td>
-                                            @producto.NombreProveedor
-                                        </td>
-
-                                        <td>
-
-                                            @if (producto.Stock <= producto.StockMinimo)
-                                            {
-                                                <span class="badge status-inactive">
-                                                    @producto.Stock
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge status-active">
-                                                    @producto.Stock
-                                                </span>
-                                            }
-
-                                        </td>
-
-                                        <td>
-
-                                            <strong>
-                                                ₡@producto.Precio.ToString("N2")
-                                            </strong>
-
-                                        </td>
-
-                                        <td>
-
-                                            <input type="number"
-                                                   class="form-control producto-cantidad"
-                                                   value="1"
-                                                   min="1"
-                                                   max="@producto.Stock"
-                                                   style="width: 90px;"
-                                                   disabled />
-
-                                        </td>
-
-                                    </tr>
-                                }
-
-                                <tr id="sinResultados"
-                                    style="display: none;">
-
-                                    <td colspan="6">
-
-                                        <div class="empty">
-                                            No se encontraron productos con ese criterio.
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
+                    <div class="secondary-text">
+                        Solo aparecen los visitantes que están dentro de la
+                        galería. La compra queda ligada a su visita.
                     </div>
                 }
 
@@ -287,88 +110,213 @@
 
         </div>
 
-        <div class="col-lg-4">
+    </div>
 
-            <div class="table-card resumen-venta">
+    <div class="page-header">
 
-                <div class="p-4 border-bottom">
+        <h1>Productos</h1>
 
-                    <h3 class="mb-1">
-                        Resumen
-                    </h3>
+        <p>
+            Marque los productos e indique la cantidad.
+            El inventario se rebaja al registrar la venta.
+        </p>
 
-                    <p class="text-muted mb-0">
-                        Productos que se lleva el visitante.
-                    </p>
+    </div>
 
-                </div>
+    @if (Model.ProductosDisponibles.Count > 0)
+    {
+        <div class="filter-bar">
 
-                <div class="p-4">
+            <input type="search"
+                   id="buscarProducto"
+                   class="form-control filter-input"
+                   placeholder="Nombre, código o proveedor"
+                   aria-label="Buscar producto"
+                   autocomplete="off" />
 
-                    <div id="detalleSeleccionado"
-                         class="mb-4">
+        </div>
+    }
 
-                        <p class="text-muted"
-                           id="mensajeVacio">
-                            No hay productos seleccionados.
-                        </p>
+    @if (Model.ProductosDisponibles.Count == 0)
+    {
+        <div class="table-card">
 
-                    </div>
+            <div class="empty">
+                No hay productos con existencias para vender.
+            </div>
 
-                    <hr />
+        </div>
+    }
+    else
+    {
+        <div class="table-card">
 
-                    <div class="d-flex justify-content-between mb-2">
+            <div class="table-responsive">
 
-                        <span>
-                            Subtotal
-                        </span>
+                <table class="data-table ventas-table">
 
-                        <strong id="subtotalTexto">
-                            ₡0.00
-                        </strong>
+                    <thead>
 
-                    </div>
+                        <tr>
 
-                    <div class="d-flex justify-content-between mb-2">
+                            <th>Incluir</th>
+                            <th>Producto</th>
+                            <th>Proveedor</th>
+                            <th>Existencias</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
 
-                        <span>
-                            IVA (13%)
-                        </span>
+                        </tr>
 
-                        <strong id="impuestoTexto">
-                            ₡0.00
-                        </strong>
+                    </thead>
 
-                    </div>
+                    <tbody>
 
-                    <div class="d-flex justify-content-between fs-5 mb-4">
+                        @foreach (var producto in Model.ProductosDisponibles)
+                        {
+                            <tr class="producto-row"
+                                data-busqueda="@($"{producto.Nombre} {producto.Codigo} {producto.NombreProveedor}")">
 
-                        <span>
-                            Total
-                        </span>
+                                <td>
 
-                        <strong id="totalTexto">
-                            ₡0.00
-                        </strong>
+                                    <input type="checkbox"
+                                           class="producto-check"
+                                           data-id="@producto.IdProducto"
+                                           data-nombre="@producto.Nombre"
+                                           data-stock="@producto.Stock"
+                                           data-precio="@producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
 
-                    </div>
+                                </td>
 
-                    <input asp-for="PorcentajeImpuesto"
-                           type="hidden" />
+                                <td>
 
-                    <div id="camposProductos">
-                    </div>
+                                    <div class="obra-name">
+                                        @producto.Nombre
+                                    </div>
 
-                    <button type="submit"
-                            class="btn-primary w-100"
-                            id="btnRegistrar"
-                            disabled>
-                        Registrar venta
-                    </button>
+                                    <div class="obra-code">
+                                        @producto.Codigo
+                                    </div>
 
-                </div>
+                                </td>
+
+                                <td>
+
+                                    <div class="artist-name">
+                                        @producto.NombreProveedor
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    @if (producto.Stock <= producto.StockMinimo)
+                                    {
+                                        <span class="badge status-inactive">
+                                            @producto.Stock
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge status-active">
+                                            @producto.Stock
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <div class="value">
+                                        ₡@producto.Precio.ToString("N2")
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <input type="number"
+                                           class="form-control producto-cantidad"
+                                           value="1"
+                                           min="1"
+                                           max="@producto.Stock"
+                                           disabled />
+
+                                </td>
+
+                            </tr>
+                        }
+
+                        <tr id="sinResultados"
+                            style="display: none;">
+
+                            <td colspan="6">
+
+                                <div class="empty">
+                                    No se encontraron productos con ese criterio.
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
 
             </div>
+
+        </div>
+    }
+
+    <div class="form-card resumen-venta">
+
+        <h2>Resumen</h2>
+
+        <div id="detalleSeleccionado">
+
+            <p class="secondary-text"
+               id="mensajeVacio">
+                No hay productos seleccionados.
+            </p>
+
+        </div>
+
+        <div class="resumen-linea">
+            <span>Subtotal</span>
+            <strong id="subtotalTexto">₡0.00</strong>
+        </div>
+
+        <div class="resumen-linea">
+            <span>IVA (13%)</span>
+            <strong id="impuestoTexto">₡0.00</strong>
+        </div>
+
+        <div class="resumen-linea resumen-total">
+            <span>Total</span>
+            <strong id="totalTexto">₡0.00</strong>
+        </div>
+
+        <input asp-for="PorcentajeImpuesto"
+               type="hidden" />
+
+        <div id="camposProductos">
+        </div>
+
+        <div class="form-actions">
+
+            <a asp-controller="Ventas"
+               asp-action="Historial"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit"
+                    class="btn-primary"
+                    id="btnRegistrar"
+                    disabled>
+                Registrar venta
+            </button>
 
         </div>
 
@@ -380,280 +328,5 @@
 {
     <partial name="_ValidationScriptsPartial" />
 
-    <script>
-        const checks =
-            document.querySelectorAll(".producto-check");
-
-        const filasProductos =
-            document.querySelectorAll(".producto-row");
-
-        const buscarProducto =
-            document.getElementById("buscarProducto");
-
-        const sinResultados =
-            document.getElementById("sinResultados");
-
-        const detalleSeleccionado =
-            document.getElementById("detalleSeleccionado");
-
-        const mensajeVacio =
-            document.getElementById("mensajeVacio");
-
-        const subtotalTexto =
-            document.getElementById("subtotalTexto");
-
-        const impuestoTexto =
-            document.getElementById("impuestoTexto");
-
-        const totalTexto =
-            document.getElementById("totalTexto");
-
-        const camposProductos =
-            document.getElementById("camposProductos");
-
-        const btnRegistrar =
-            document.getElementById("btnRegistrar");
-
-        function normalizarTexto(texto) {
-            return texto
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .trim();
-        }
-
-        function filtrarProductos() {
-            if (!buscarProducto) {
-                return;
-            }
-
-            const termino =
-                normalizarTexto(buscarProducto.value);
-
-            let cantidadVisible = 0;
-
-            filasProductos.forEach(fila => {
-                const contenido =
-                    normalizarTexto(
-                        fila.dataset.busqueda ?? ""
-                    );
-
-                const coincide =
-                    contenido.includes(termino);
-
-                fila.style.display =
-                    coincide ? "" : "none";
-
-                if (coincide) {
-                    cantidadVisible++;
-                }
-            });
-
-            if (sinResultados) {
-                sinResultados.style.display =
-                    cantidadVisible === 0
-                        ? ""
-                        : "none";
-            }
-        }
-
-        function formatoMoneda(valor) {
-            return new Intl.NumberFormat(
-                "es-CR",
-                {
-                    style: "currency",
-                    currency: "CRC"
-                }
-            ).format(valor);
-        }
-
-        function actualizarResumen() {
-            const seleccionadas =
-                Array.from(checks)
-                    .filter(check => check.checked);
-
-            detalleSeleccionado.innerHTML = "";
-            camposProductos.innerHTML = "";
-
-            let subtotal = 0;
-
-            if (seleccionadas.length === 0) {
-                detalleSeleccionado.appendChild(
-                    mensajeVacio
-                );
-
-                btnRegistrar.disabled = true;
-            }
-            else {
-                seleccionadas.forEach(
-                    (check, indice) => {
-
-                        const id =
-                            check.dataset.id;
-
-                        const nombre =
-                            check.dataset.nombre;
-
-                        const precio =
-                            Number(check.dataset.precio);
-
-                        const campoCantidad =
-                            check.closest("tr")
-                                 .querySelector(".producto-cantidad");
-
-                        const cantidad =
-                            Math.max(1, Number(campoCantidad.value) || 1);
-
-                        const importe =
-                            precio * cantidad;
-
-                        subtotal += importe;
-
-                        const fila =
-                            document.createElement("div");
-
-                        fila.className =
-                            "d-flex justify-content-between gap-3 mb-2";
-
-                        const nombreProducto =
-                            document.createElement("span");
-
-                        nombreProducto.textContent =
-                            cantidad + " x " + nombre;
-
-                        const importeProducto =
-                            document.createElement("strong");
-
-                        importeProducto.textContent =
-                            formatoMoneda(importe);
-
-                        fila.appendChild(nombreProducto);
-                        fila.appendChild(importeProducto);
-
-                        detalleSeleccionado.appendChild(
-                            fila
-                        );
-
-                        const campoId =
-                            document.createElement("input");
-
-                        campoId.type =
-                            "hidden";
-
-                        campoId.name =
-                            `Productos[${indice}].IdProducto`;
-
-                        campoId.value =
-                            id;
-
-                        const campoCantidadOculto =
-                            document.createElement("input");
-
-                        campoCantidadOculto.type =
-                            "hidden";
-
-                        campoCantidadOculto.name =
-                            `Productos[${indice}].Cantidad`;
-
-                        campoCantidadOculto.value =
-                            cantidad;
-
-                        camposProductos.appendChild(
-                            campoId
-                        );
-
-                        camposProductos.appendChild(
-                            campoCantidadOculto
-                        );
-                    }
-                );
-
-                btnRegistrar.disabled = false;
-            }
-
-            const impuesto =
-                subtotal * 0.13;
-
-            const total =
-                subtotal + impuesto;
-
-            subtotalTexto.textContent =
-                formatoMoneda(subtotal);
-
-            impuestoTexto.textContent =
-                formatoMoneda(impuesto);
-
-            totalTexto.textContent =
-                formatoMoneda(total);
-        }
-
-        checks.forEach(check => {
-
-            const campoCantidad =
-                check.closest("tr")
-                     .querySelector(".producto-cantidad");
-
-            check.addEventListener("change", () => {
-
-                // La cantidad solo se habilita si el producto
-                // esta marcado.
-                campoCantidad.disabled = !check.checked;
-
-                if (check.checked && Number(campoCantidad.value) < 1) {
-                    campoCantidad.value = 1;
-                }
-
-                actualizarResumen();
-            });
-
-            campoCantidad.addEventListener("input", () => {
-
-                const maximo =
-                    Number(check.dataset.stock);
-
-                if (Number(campoCantidad.value) > maximo) {
-                    campoCantidad.value = maximo;
-                }
-
-                actualizarResumen();
-            });
-        });
-
-        if (buscarProducto) {
-            buscarProducto.addEventListener(
-                "input",
-                filtrarProductos
-            );
-        }
-
-        actualizarResumen();
-    </script>
+    <script src="~/js/ventas.js" asp-append-version="true"></script>
 }
-
-<style>
-    .search-icon {
-        position: absolute;
-        top: 50%;
-        left: 14px;
-        z-index: 2;
-        color: #6c757d;
-        transform: translateY(-50%);
-        pointer-events: none;
-    }
-
-    .search-input {
-        padding-left: 42px;
-    }
-
-    .resumen-venta {
-        position: sticky;
-        top: 20px;
-    }
-
-    @@media (max-width: 991px) {
-        .resumen-venta {
-            position: static;
-            margin-top: 24px;
-        }
-    }
-</style>

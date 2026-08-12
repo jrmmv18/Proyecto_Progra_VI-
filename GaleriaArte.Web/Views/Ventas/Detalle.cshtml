@@ -11,7 +11,7 @@
         <p>Información completa de la venta registrada.</p>
     </div>
 
-    <div class="d-flex gap-2 flex-wrap">
+    <div class="table-actions">
 
         <a asp-controller="Ventas"
            asp-action="Historial"
@@ -63,7 +63,7 @@
 
 @if (TempData["Error"] != null)
 {
-    <div class="text-danger mb-3 no-print">
+    <div class="message message-error no-print">
         @TempData["Error"]
     </div>
 }
@@ -339,7 +339,7 @@
 
 </div>
 
-<div class="d-flex gap-2 mt-4 no-print flex-wrap">
+<div class="table-actions no-print">
 
     <a asp-controller="Ventas"
        asp-action="Index"
@@ -355,201 +355,3 @@
 
 </div>
 
-<style>
-    .invoice-card {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 32px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    }
-
-    .invoice-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 24px;
-    }
-
-    .invoice-brand {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .invoice-logo {
-        width: 70px;
-        height: 70px;
-        object-fit: contain;
-    }
-
-    .invoice-brand h2 {
-        margin: 0 0 4px;
-    }
-
-    .invoice-brand p {
-        margin: 0;
-        color: #6c757d;
-    }
-
-    .invoice-number {
-        text-align: right;
-    }
-
-    .invoice-number span {
-        display: block;
-        color: #6c757d;
-        font-size: 0.85rem;
-        letter-spacing: 1px;
-    }
-
-    .invoice-number strong {
-        display: block;
-        font-size: 1.8rem;
-    }
-
-    .invoice-divider {
-        height: 1px;
-        margin: 28px 0;
-        background: #e8e8e8;
-    }
-
-    .invoice-information {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 24px;
-        margin-bottom: 30px;
-    }
-
-    .invoice-section {
-        padding: 20px;
-        border: 1px solid #e8e8e8;
-        border-radius: 10px;
-    }
-
-    .invoice-section h3,
-    .invoice-detail h3 {
-        margin-top: 0;
-        margin-bottom: 18px;
-        font-size: 1.05rem;
-    }
-
-    .invoice-data-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 10px;
-    }
-
-    .invoice-data-row:last-child {
-        margin-bottom: 0;
-    }
-
-    .invoice-data-row span:first-child {
-        color: #6c757d;
-    }
-
-    .invoice-detail {
-        margin-top: 10px;
-    }
-
-    .invoice-summary {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 28px;
-    }
-
-    .invoice-summary-content {
-        width: 100%;
-        max-width: 380px;
-    }
-
-    .invoice-total-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eeeeee;
-    }
-
-    .invoice-grand-total {
-        margin-top: 6px;
-        padding-top: 16px;
-        font-size: 1.25rem;
-        border-bottom: 0;
-    }
-
-    .invoice-footer {
-        margin-top: 34px;
-        padding-top: 22px;
-        text-align: center;
-        border-top: 1px solid #e8e8e8;
-    }
-
-    .invoice-footer p {
-        margin-bottom: 4px;
-        font-weight: 600;
-    }
-
-    .invoice-footer small {
-        color: #6c757d;
-    }
-
-    @@media (max-width: 768px) {
-        .invoice-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .invoice-number {
-            text-align: left;
-        }
-
-        .invoice-information {
-            grid-template-columns: 1fr;
-        }
-
-        .invoice-card {
-            padding: 20px;
-        }
-    }
-
-    @@media print {
-        body {
-            background: #ffffff !important;
-        }
-
-        .sidebar,
-        .global-toggle-container,
-        .no-print {
-            display: none !important;
-        }
-
-        .app,
-        .main {
-            display: block !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .invoice-card {
-            padding: 0;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
-        }
-
-        .table-responsive {
-            overflow: visible !important;
-        }
-
-        .invoice-table {
-            width: 100%;
-        }
-
-        @@page {
-            size: A4;
-            margin: 15mm;
-        }
-    }
-</style>

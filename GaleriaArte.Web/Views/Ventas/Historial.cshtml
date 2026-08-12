@@ -28,7 +28,7 @@
 
 @if (TempData["Error"] != null)
 {
-    <div class="text-danger mb-3">
+    <div class="message message-error">
         @TempData["Error"]
     </div>
 }
@@ -45,23 +45,18 @@
 }
 else
 {
+    <div class="filter-bar">
+
+        <input type="search"
+               id="buscarFactura"
+               class="form-control filter-input"
+               placeholder="Factura, cliente, vendedor, método de pago o estado"
+               aria-label="Buscar factura"
+               autocomplete="off" />
+
+    </div>
+
     <div class="table-card">
-
-        <div class="p-4 border-bottom">
-
-            <div class="position-relative">
-
-                <i class="bi bi-search historial-search-icon"></i>
-
-                <input type="search"
-                       id="buscarFactura"
-                       class="form-control historial-search-input"
-                       placeholder="Buscar por factura, cliente, vendedor, método de pago o estado..."
-                       autocomplete="off" />
-
-            </div>
-
-        </div>
 
         <div class="table-responsive">
 
@@ -242,18 +237,3 @@ else
     </script>
 }
 
-<style>
-    .historial-search-icon {
-        position: absolute;
-        top: 50%;
-        left: 14px;
-        z-index: 2;
-        color: #6c757d;
-        transform: translateY(-50%);
-        pointer-events: none;
-    }
-
-    .historial-search-input {
-        padding-left: 42px;
-    }
-</style>

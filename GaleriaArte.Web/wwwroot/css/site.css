@@ -480,6 +480,12 @@ textarea {
     border-radius: 8px;
 }
 
+    /* Mismo aviso, pero cuando la operacion fallo */
+    .message.message-error {
+        background: #fbe3e1;
+        color: #b42318;
+    }
+
 
 /* =====================================================
    TARJETA DE TABLA
@@ -1967,4 +1973,315 @@ body.tema-oscuro .page-link {
 body.tema-oscuro .message {
     background: #2f3340;
     color: #eceef1;
+}
+
+/* =====================================================
+   MODULO VENTAS
+===================================================== */
+
+.ventas-table {
+    min-width: 900px;
+}
+
+/* Casilla para incluir el producto en la venta */
+
+.producto-check {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Cantidad que se lleva de cada producto */
+
+.form-control.producto-cantidad {
+    width: 90px;
+    padding: 7px 10px;
+}
+
+
+/* Resumen de la compra */
+
+.resumen-venta {
+    margin-top: 20px;
+}
+
+    .resumen-venta h2 {
+        margin: 0 0 16px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+.resumen-linea {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 9px 0;
+    border-bottom: 1px solid #ececef;
+}
+
+    .resumen-linea:last-of-type {
+        border-bottom: none;
+    }
+
+/* Renglon del total, mas marcado que el resto */
+
+.resumen-total {
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 2px solid #d9dde4;
+    border-bottom: none;
+    font-size: 17px;
+}
+
+
+/* =====================================================
+   MODO OSCURO DEL MODULO VENTAS
+===================================================== */
+
+body.tema-oscuro .resumen-linea {
+    border-color: #3d4250;
+}
+
+body.tema-oscuro .resumen-total {
+    border-color: #4a5162;
+}
+
+
+/* =====================================================
+   RESPONSIVE DEL MODULO VENTAS
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .form-control.producto-cantidad {
+        width: 100%;
+    }
+}
+
+
+/* =====================================================
+   MODULO VENTAS: COMPROBANTE DE FACTURA
+   Estos estilos estaban dentro de la vista Detalle.cshtml.
+   Se trasladan aqui para seguir la organizacion del resto
+   del proyecto, donde todo el CSS vive en site.css.
+===================================================== */
+
+.invoice-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 32px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.invoice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.invoice-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.invoice-logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+.invoice-brand h2 {
+    margin: 0 0 4px;
+}
+
+.invoice-brand p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.invoice-number {
+    text-align: right;
+}
+
+.invoice-number span {
+    display: block;
+    color: #6c757d;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.invoice-number strong {
+    display: block;
+    font-size: 1.8rem;
+}
+
+.invoice-divider {
+    height: 1px;
+    margin: 28px 0;
+    background: #e8e8e8;
+}
+
+.invoice-information {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.invoice-section {
+    padding: 20px;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+}
+
+.invoice-section h3,
+.invoice-detail h3 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1.05rem;
+}
+
+.invoice-data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.invoice-data-row:last-child {
+    margin-bottom: 0;
+}
+
+.invoice-data-row span:first-child {
+    color: #6c757d;
+}
+
+.invoice-detail {
+    margin-top: 10px;
+}
+
+.invoice-summary {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 28px;
+}
+
+.invoice-summary-content {
+    width: 100%;
+    max-width: 380px;
+}
+
+.invoice-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.invoice-grand-total {
+    margin-top: 6px;
+    padding-top: 16px;
+    font-size: 1.25rem;
+    border-bottom: 0;
+}
+
+.invoice-footer {
+    margin-top: 34px;
+    padding-top: 22px;
+    text-align: center;
+    border-top: 1px solid #e8e8e8;
+}
+
+.invoice-footer p {
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.invoice-footer small {
+    color: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .invoice-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .invoice-number {
+        text-align: left;
+    }
+
+    .invoice-information {
+        grid-template-columns: 1fr;
+    }
+
+    .invoice-card {
+        padding: 20px;
+    }
+}
+
+@media print {
+    body {
+        background: #ffffff !important;
+    }
+
+    .sidebar,
+    .global-toggle-container,
+    .no-print {
+        display: none !important;
+    }
+
+    .app,
+    .main {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .invoice-card {
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    .invoice-table {
+        width: 100%;
+    }
+
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+}
+
+body.tema-oscuro .message.message-error {
+    background: #4a2624;
+    color: #f5b7b1;
+}
+
+body.tema-oscuro .invoice-card {
+    background: #2f3340;
+    box-shadow: none;
+    border: 1px solid #3d4250;
+}
+
+body.tema-oscuro .invoice-brand h2,
+body.tema-oscuro .invoice-section h3,
+body.tema-oscuro .invoice-detail h3 {
+    color: #f2f4f7;
+}
+
+body.tema-oscuro .invoice-divider,
+body.tema-oscuro .invoice-data-row,
+body.tema-oscuro .invoice-total-row {
+    border-color: #3d4250;
 }
