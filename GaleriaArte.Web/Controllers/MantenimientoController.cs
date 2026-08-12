@@ -53,7 +53,7 @@ namespace GaleriaArte.Web.Controllers
                 FechaFin = fechaFin,
                 Controlador = "Mantenimiento",
                 EtiquetaFechas = "Mantenimiento",
-                PlaceholderBusqueda = "Descripción del trabajo"
+                PlaceholderBusqueda = "Nombre de obra o descripción del trabajo"
             };
 
             try
@@ -65,6 +65,7 @@ namespace GaleriaArte.Web.Controllers
                     .Where(mantenimiento =>
                         FiltroBusqueda.Coincide(
                             busqueda,
+                            mantenimiento.NombreObra,
                             mantenimiento.DescripcionTrabajo))
                     .Where(mantenimiento =>
                         FiltroBusqueda.EnRango(

@@ -1,4 +1,4 @@
-﻿@model GaleriaArte.Web.Models.Mantenimiento
+@model GaleriaArte.Web.Models.Mantenimiento
 
 @using Microsoft.AspNetCore.Mvc.Rendering
 @using System.Collections.Generic
@@ -82,6 +82,41 @@
                 </select>
 
                 <span asp-validation-for="IdObra"
+                      class="field-validation">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="TipoMantenimiento"
+                       class="form-label">
+                    Tipo de mantenimiento
+                </label>
+
+                <select asp-for="TipoMantenimiento"
+                        class="form-select"
+                        required>
+
+                    <option value="">
+                        Seleccione un tipo
+                    </option>
+
+                    <option value="Preventivo">
+                        Preventivo
+                    </option>
+
+                    <option value="Correctivo">
+                        Correctivo
+                    </option>
+
+                    <option value="Restauración">
+                        Restauración
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="TipoMantenimiento"
                       class="field-validation">
                 </span>
 

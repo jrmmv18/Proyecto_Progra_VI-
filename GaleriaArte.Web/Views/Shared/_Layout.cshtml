@@ -9,6 +9,9 @@
     <title>@ViewData["Title"] - Galería de Arte</title>
 
     <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
 
@@ -153,6 +156,13 @@
     COMERCIAL
 </div>
 
+<a asp-controller="Clientes"
+   asp-action="Index"
+   class="menu-link @(controlador == "Clientes" ? "active" : "")">
+    <i class="bi bi-person-vcard"></i>
+    <span>Clientes</span>
+</a>
+
 <a asp-controller="Ventas"
    asp-action="Index"
    class="menu-link @(controlador == "Ventas" ? "active" : "")">
@@ -171,6 +181,13 @@
    class="menu-link @(controlador == "Usuarios" ? "active" : "")">
     <i class="bi bi-person-gear"></i>
     <span>Usuarios</span>
+</a>
+
+<a asp-controller="Bitacoras"
+   asp-action="Index"
+   class="menu-link @(controlador == "Bitacoras" ? "active" : "")">
+    <i class="bi bi-journal-text"></i>
+    <span>Centro de Auditoría</span>
 </a>
 
 <a asp-controller="AcercaDe"

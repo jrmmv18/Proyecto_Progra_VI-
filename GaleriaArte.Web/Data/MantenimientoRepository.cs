@@ -29,99 +29,45 @@ namespace GaleriaArte.Web.Data
 
         // 1. REGISTRAR EL MANTENIMIENTO PRINCIPAL
         // Devuelve el IdMantenimiento generado.
-        public int RegistrarMantenimientoCompleto(
-            Mantenimiento mantenimiento)
+        public int RegistrarMantenimientoCompleto(Mantenimiento mantenimiento)
         {
             if (mantenimiento == null)
-            {
-                throw new ArgumentNullException(
-                    nameof(mantenimiento));
-            }
+                throw new ArgumentNullException(nameof(mantenimiento));
 
-            if (mantenimiento.IdObra <= 0)
-            {
-                throw new ArgumentException(
-                    "Debe seleccionar una obra válida.",
-                    nameof(mantenimiento));
-            }
-
-            if (mantenimiento.IdUsuario <= 0)
-            {
-                throw new ArgumentException(
-                    "El identificador del usuario no es válido.",
-                    nameof(mantenimiento));
-            }
-
-            using var conn =
-                new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(_connectionString);
 
             using var cmd = new SqlCommand(
                 "dbo.sp_RegistrarMantenimiento",
                 conn);
 
-            cmd.CommandType =
-                CommandType.StoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
 
-            cmd.Parameters.Add(
-                "@IdObra",
-                SqlDbType.Int
-            ).Value = mantenimiento.IdObra;
+            cmd.Parameters.Add("@IdObra", SqlDbType.Int).Value =
+                mantenimiento.IdObra;
 
-            cmd.Parameters.Add(
-                "@DescripcionTrabajo",
-                SqlDbType.NVarChar,
-                500
-            ).Value =
-                string.IsNullOrWhiteSpace(
-                    mantenimiento.DescripcionTrabajo)
+            cmd.Parameters.Add("@TipoMantenimiento", SqlDbType.NVarChar, 80).Value =
+                mantenimiento.TipoMantenimiento;
+
+            cmd.Parameters.Add("@Observaciones", SqlDbType.NVarChar, 1000).Value =
+                string.IsNullOrWhiteSpace(mantenimiento.DescripcionTrabajo)
                     ? DBNull.Value
-                    : mantenimiento.DescripcionTrabajo.Trim();
+                    : mantenimiento.DescripcionTrabajo;
 
-            var fechaParametro = new SqlParameter(
-                "@FechaMantenimiento",
-                SqlDbType.DateTime);
+            cmd.Parameters.Add("@FechaMantenimiento", SqlDbType.DateTime2).Value =
+                mantenimiento.FechaMantenimiento;
 
-            if (mantenimiento.FechaMantenimiento == default ||
-                mantenimiento.FechaMantenimiento <
-                new DateTime(1753, 1, 1))
-            {
-                fechaParametro.Value = DBNull.Value;
-            }
-            else
-            {
-                fechaParametro.Value =
-                    mantenimiento.FechaMantenimiento;
-            }
-
-            cmd.Parameters.Add(fechaParametro);
-
-            cmd.Parameters.Add(
-                "@IdUsuario",
-                SqlDbType.Int
-            ).Value = mantenimiento.IdUsuario;
+            cmd.Parameters.Add("@IdUsuario", SqlDbType.Int).Value =
+                mantenimiento.IdUsuario;
 
             conn.Open();
 
-            object? resultado =
-                cmd.ExecuteScalar();
+            object? resultado = cmd.ExecuteScalar();
 
-            if (resultado == null ||
-                resultado == DBNull.Value)
-            {
+            if (resultado == null || resultado == DBNull.Value)
                 throw new InvalidOperationException(
-                    "El procedimiento almacenado no devolvió el IdMantenimiento.");
-            }
+                    "El procedimiento no devolvió el IdMantenimiento.");
 
-            int idMantenimiento =
-                Convert.ToInt32(resultado);
-
-            if (idMantenimiento <= 0)
-            {
-                throw new InvalidOperationException(
-                    "El identificador devuelto por el procedimiento no es válido.");
-            }
-
-            return idMantenimiento;
+            return Convert.ToInt32(resultado);
         }
 
         // 2. LISTAR LOS MANTENIMIENTOS
@@ -147,34 +93,43 @@ namespace GaleriaArte.Web.Data
 
             while (reader.Read())
             {
-                var mantenimiento =
-                    new Mantenimiento
-                    {
-                        IdMantenimiento =
-                            ObtenerEntero(
-                                reader,
-                                "IdMantenimiento"),
+                var mantenimiento = new Mantenimiento
+                {
+                     IdMantenimiento =
+                         ObtenerEntero(
+                             reader,
+                             "IdMantenimiento"),
 
-                        IdObra =
-                            ObtenerEntero(
-                                reader,
-                                "IdObra"),
+                                    IdObra =
+                         ObtenerEntero(
+                             reader,
+                             "IdObra"),
 
-                        DescripcionTrabajo =
-                            ObtenerTexto(
-                                reader,
-                                "DescripcionTrabajo"),
+                                    NombreObra =
+                         ObtenerTexto(
+                             reader,
+                             "NombreObra"),
 
-                        FechaMantenimiento =
-                            ObtenerFecha(
-                                reader,
-                                "FechaMantenimiento"),
+                                    TipoMantenimiento =
+                         ObtenerTexto(
+                             reader,
+                             "TipoMantenimiento"),
 
-                        IdUsuario =
-                            ObtenerEntero(
-                                reader,
-                                "IdUsuario")
-                    };
+                                    DescripcionTrabajo =
+                         ObtenerTexto(
+                             reader,
+                             "DescripcionTrabajo"),
+
+                                    FechaMantenimiento =
+                         ObtenerFecha(
+                             reader,
+                             "FechaMantenimiento"),
+
+                                    IdUsuario =
+                         ObtenerEntero(
+                             reader,
+                             "IdUsuario")
+                     };
 
                 lista.Add(mantenimiento);
             }
@@ -186,9 +141,9 @@ namespace GaleriaArte.Web.Data
         // El procedimiento debe insertar el detalle
         // y descontar el stock.
         public bool RegistrarProductoUsado(
-    int idMantenimiento,
-    int idProducto,
-    int cantidadUtilizada)
+        int idMantenimiento,
+        int idProducto,
+        int cantidadUtilizada)
         {
             if (idMantenimiento <= 0)
             {

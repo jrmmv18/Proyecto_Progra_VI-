@@ -14,6 +14,9 @@ builder.Services.AddScoped<ProveedorRepository>();
 builder.Services.AddScoped<ProductoRepository>();
 builder.Services.AddScoped<VisitaRepository>();
 builder.Services.AddScoped<DashboardRepository>();
+builder.Services.AddScoped<BitacoraRepository>();
+builder.Services.AddScoped<ClienteRepository>();
+builder.Services.AddScoped<FacturaRepository>();
 
 // NUEVO: Registro ordenado para módulo de mantenimiento (HU-11)
 builder.Services.AddScoped<GaleriaArte.Web.Data.IMantenimientoRepository, GaleriaArte.Web.Data.MantenimientoRepository>();

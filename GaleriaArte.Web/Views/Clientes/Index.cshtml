@@ -1,0 +1,164 @@
+﻿@model List<GaleriaArte.Web.Models.Cliente>
+
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="page-header page-header-actions">
+
+    <div>
+        <h1>Clientes</h1>
+        <p>Administración de los clientes registrados en la galería.</p>
+    </div>
+
+    <a asp-controller="Clientes"
+       asp-action="Create"
+       class="btn-primary">
+        + Nuevo cliente
+    </a>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="text-danger mb-3">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="table-card">
+
+        <div class="empty">
+            No hay clientes registrados.
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="table-card">
+
+        <div class="table-responsive">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        <th>Dirección</th>
+                        <th>Fecha de registro</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var cliente in Model)
+                    {
+                        <tr>
+
+                            <td>
+
+                                <div class="artist-name">
+                                    @cliente.NombreCompleto
+                                </div>
+
+                                <div class="artist-email">
+                                    @(string.IsNullOrWhiteSpace(cliente.Correo)
+                                        ? "Sin correo registrado"
+                                        : cliente.Correo)
+                                </div>
+
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(cliente.Telefono)
+                                    ? "No registrado"
+                                    : cliente.Telefono)
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(cliente.Direccion)
+                                    ? "No registrada"
+                                    : cliente.Direccion)
+                            </td>
+
+                            <td>
+                                @cliente.FechaRegistro.ToString("dd/MM/yyyy")
+                            </td>
+
+                            <td>
+
+                                @if (cliente.Estado)
+                                {
+                                    <span class="badge status-active">
+                                        Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-inactive">
+                                        Inactivo
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <div class="table-actions">
+
+                                    <a asp-controller="Clientes"
+                                       asp-action="Edit"
+                                       asp-route-id="@cliente.IdCliente"
+                                       class="btn-edit">
+                                        Editar
+                                    </a>
+
+                                    <form asp-controller="Clientes"
+                                          asp-action="CambiarEstado"
+                                          asp-route-id="@cliente.IdCliente"
+                                          method="post"
+                                          onsubmit="return confirm('¿Desea cambiar el estado de este cliente?');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn-state">
+
+                                            @(cliente.Estado
+                                                ? "Desactivar"
+                                                : "Activar")
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}

@@ -1,0 +1,259 @@
+﻿@model List<GaleriaArte.Web.Models.Factura>
+
+@{
+    ViewData["Title"] = "Historial de ventas";
+}
+
+<div class="page-header page-header-actions">
+
+    <div>
+        <h1>Historial de ventas</h1>
+        <p>Consulta de las facturas registradas en el sistema.</p>
+    </div>
+
+    <a asp-controller="Ventas"
+       asp-action="Index"
+       class="btn-primary">
+        + Nueva venta
+    </a>
+
+</div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="message">
+        @TempData["Mensaje"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="text-danger mb-3">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="table-card">
+
+        <div class="empty">
+            No hay ventas registradas.
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="table-card">
+
+        <div class="p-4 border-bottom">
+
+            <div class="position-relative">
+
+                <i class="bi bi-search historial-search-icon"></i>
+
+                <input type="search"
+                       id="buscarFactura"
+                       class="form-control historial-search-input"
+                       placeholder="Buscar por factura, cliente, vendedor, método de pago o estado..."
+                       autocomplete="off" />
+
+            </div>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="data-table"
+                   id="tablaFacturas">
+
+                <thead>
+
+                    <tr>
+                        <th>Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Método de pago</th>
+                        <th>Vendedor</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var factura in Model)
+                    {
+                        string textoBusqueda =
+                            $"{factura.IdFactura} {factura.NombreCliente} {factura.NombreUsuario} {factura.MetodoPago} {factura.EstadoFactura}";
+
+                        <tr class="factura-row"
+                            data-busqueda="@textoBusqueda">
+
+                            <td>
+                                <strong>
+                                    #@factura.IdFactura
+                                </strong>
+                            </td>
+
+                            <td>
+                                @factura.NombreCliente
+                            </td>
+
+                            <td>
+                                @factura.FechaFactura.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                @factura.MetodoPago
+                            </td>
+
+                            <td>
+                                @factura.NombreUsuario
+                            </td>
+
+                            <td>
+                                <strong>
+                                    ₡@factura.Total.ToString("N2")
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                @if (factura.IdEstadoFactura == 1)
+                                {
+                                    <span class="badge status-active">
+                                        @factura.EstadoFactura
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-inactive">
+                                        @factura.EstadoFactura
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <div class="table-actions">
+
+                                    <a asp-controller="Ventas"
+                                       asp-action="Detalle"
+                                       asp-route-id="@factura.IdFactura"
+                                       class="btn-edit">
+                                        Ver detalle
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                    <tr id="sinResultadosHistorial"
+                        style="display: none;">
+
+                        <td colspan="8">
+
+                            <div class="empty">
+                                No se encontraron facturas con ese criterio.
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        const buscarFactura =
+            document.getElementById("buscarFactura");
+
+        const filasFacturas =
+            document.querySelectorAll(".factura-row");
+
+        const sinResultadosHistorial =
+            document.getElementById("sinResultadosHistorial");
+
+        function normalizarTexto(texto) {
+            return texto
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function filtrarFacturas() {
+            if (!buscarFactura) {
+                return;
+            }
+
+            const termino =
+                normalizarTexto(buscarFactura.value);
+
+            let cantidadVisible = 0;
+
+            filasFacturas.forEach(fila => {
+                const contenido =
+                    normalizarTexto(
+                        fila.dataset.busqueda ?? ""
+                    );
+
+                const coincide =
+                    contenido.includes(termino);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    cantidadVisible++;
+                }
+            });
+
+            if (sinResultadosHistorial) {
+                sinResultadosHistorial.style.display =
+                    cantidadVisible === 0
+                        ? ""
+                        : "none";
+            }
+        }
+
+        if (buscarFactura) {
+            buscarFactura.addEventListener(
+                "input",
+                filtrarFacturas
+            );
+        }
+    </script>
+}
+
+<style>
+    .historial-search-icon {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        color: #6c757d;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .historial-search-input {
+        padding-left: 42px;
+    }
+</style>
