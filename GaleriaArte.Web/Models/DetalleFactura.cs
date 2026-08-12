@@ -1,4 +1,4 @@
-namespace GaleriaArte.Web.Models
+﻿namespace GaleriaArte.Web.Models
 {
     public class DetalleFactura
     {
@@ -6,7 +6,7 @@ namespace GaleriaArte.Web.Models
 
         public int IdFactura { get; set; }
 
-        public int IdProducto { get; set; }
+        public int IdObra { get; set; }
 
         public int Cantidad { get; set; }
 
@@ -14,9 +14,13 @@ namespace GaleriaArte.Web.Models
 
         public decimal Subtotal { get; set; }
 
-        // Propiedades auxiliares para mostrar datos relacionados
-        public string CodigoProducto { get; set; } = string.Empty;
+        public string CodigoObra { get; set; } =
+            string.Empty;
 
-        public string NombreProducto { get; set; } = string.Empty;
+        public string NombreObra { get; set; } =
+            string.Empty;
+
+        public string NombreArtista { get; set; } =
+            string.Empty;
     }
 }

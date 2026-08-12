@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace GaleriaArte.Web.Models
 {
@@ -20,24 +20,19 @@ namespace GaleriaArte.Web.Models
         public decimal PorcentajeImpuesto { get; set; } =
             0.13m;
 
-        // Productos que se llevan en la compra
-        public List<DetalleVentaCrearViewModel> Productos { get; set; } =
+        public List<DetalleVentaCrearViewModel> Obras { get; set; } =
             new List<DetalleVentaCrearViewModel>();
 
-        // Solo aparecen los clientes que estan dentro de la galeria,
-        // porque para facturar hace falta una visita en curso.
         public List<Cliente> ClientesDisponibles { get; set; } =
             new List<Cliente>();
 
-        public List<Producto> ProductosDisponibles { get; set; } =
-            new List<Producto>();
+        public List<Obra> ObrasDisponibles { get; set; } =
+            new List<Obra>();
     }
 
     public class DetalleVentaCrearViewModel
     {
-        public int IdProducto { get; set; }
-
-        public int Cantidad { get; set; }
+        public int IdObra { get; set; }
 
         public decimal PrecioUnitario { get; set; }
     }

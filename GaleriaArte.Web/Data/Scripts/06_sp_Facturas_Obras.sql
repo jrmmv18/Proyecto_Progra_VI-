@@ -1,0 +1,711 @@
+/*=========================================================
+  FACTURACION DE OBRAS
+
+  Procedimientos que espera el modulo de ventas del
+  desarrollo final: la factura lleva obras de arte y al
+  venderlas quedan marcadas como no disponibles.
+
+  Son los originales del equipo, sin cambios.
+
+  Los procedimientos de Clientes no se incluyen a
+  proposito: ya tienen su bitacora y no son parte del
+  modulo de ventas.
+=========================================================*/
+
+CREATE OR ALTER PROCEDURE dbo.sp_Obras_ListarDisponibles
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        O.IdObra,
+        O.IdArtista,
+        O.IdCategoria,
+        O.Codigo,
+        O.Nombre,
+        O.Descripcion,
+        O.FechaCreacion,
+        O.FechaIngresoGaleria,
+        O.ValorEstimado,
+        O.EstadoConservacion,
+        O.Estado,
+
+        CAST(N'' AS NVARCHAR(200)) AS NombreArtista,
+        CAST(N'' AS NVARCHAR(200)) AS NombreCategoria
+
+    FROM dbo.Obras AS O
+
+    WHERE O.Estado = 1
+
+      AND NOT EXISTS
+      (
+          SELECT 1
+          FROM dbo.DetalleFactura AS DF
+          INNER JOIN dbo.Facturas AS F
+              ON DF.IdFactura = F.IdFactura
+          INNER JOIN dbo.EstadoFactura AS EF
+              ON F.IdEstadoFactura = EF.IdEstadoFactura
+          WHERE DF.IdObra = O.IdObra
+            AND EF.Nombre <> N'Anulada'
+      )
+
+    ORDER BY O.Nombre;
+END
+
+
+GO
+
+
+
+/* ============================================================
+   FACTURAS - LISTAR
+   ============================================================ */
+
+CREATE OR ALTER PROCEDURE dbo.sp_Facturas_Listar
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        F.IdFactura,
+        F.IdCliente,
+        F.IdUsuario,
+        F.IdEstadoFactura,
+        F.FechaFactura,
+        F.MetodoPago,
+        F.Subtotal,
+        F.Impuesto,
+        F.Total,
+
+        CONCAT(
+            C.Nombre,
+            N' ',
+            C.Apellido
+        ) AS NombreCliente,
+
+        CONCAT(
+            U.Nombre,
+            N' ',
+            U.Apellido
+        ) AS NombreUsuario,
+
+        EF.Nombre AS EstadoFactura
+
+    FROM dbo.Facturas F
+
+    INNER JOIN dbo.Clientes C
+        ON F.IdCliente = C.IdCliente
+
+    INNER JOIN dbo.Usuarios U
+        ON F.IdUsuario = U.IdUsuario
+
+    INNER JOIN dbo.EstadoFactura EF
+        ON F.IdEstadoFactura =
+           EF.IdEstadoFactura
+
+    ORDER BY
+        F.FechaFactura DESC,
+        F.IdFactura DESC;
+END
+
+
+GO
+
+
+
+/* ============================================================
+   FACTURAS - OBTENER FACTURA Y DETALLE
+   ============================================================ */
+
+CREATE OR ALTER PROCEDURE dbo.sp_Facturas_Obtener
+    @IdFactura INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    /* PRIMER RESULTADO: CABECERA */
+
+    SELECT
+        F.IdFactura,
+        F.IdCliente,
+        F.IdUsuario,
+        F.IdEstadoFactura,
+        F.FechaFactura,
+        F.MetodoPago,
+        F.Subtotal,
+        F.Impuesto,
+        F.Total,
+
+        CONCAT(
+            C.Nombre,
+            N' ',
+            C.Apellido
+        ) AS NombreCliente,
+
+        CONCAT(
+            U.Nombre,
+            N' ',
+            U.Apellido
+        ) AS NombreUsuario,
+
+        EF.Nombre AS EstadoFactura
+
+    FROM dbo.Facturas F
+
+    INNER JOIN dbo.Clientes C
+        ON F.IdCliente = C.IdCliente
+
+    INNER JOIN dbo.Usuarios U
+        ON F.IdUsuario = U.IdUsuario
+
+    INNER JOIN dbo.EstadoFactura EF
+        ON F.IdEstadoFactura =
+           EF.IdEstadoFactura
+
+    WHERE F.IdFactura = @IdFactura;
+
+
+    /* SEGUNDO RESULTADO: DETALLE */
+
+    SELECT
+        DF.IdDetalleFactura,
+        DF.IdFactura,
+        DF.IdObra,
+        DF.Cantidad,
+        DF.PrecioUnitario,
+        DF.Subtotal,
+
+        O.Codigo AS CodigoObra,
+
+        O.Nombre AS NombreObra,
+
+        CAST(N'' AS NVARCHAR(200))
+            AS NombreArtista
+
+    FROM dbo.DetalleFactura DF
+
+    INNER JOIN dbo.Obras O
+        ON DF.IdObra = O.IdObra
+
+    WHERE DF.IdFactura = @IdFactura
+
+    ORDER BY DF.IdDetalleFactura;
+END
+
+
+GO
+
+
+CREATE OR ALTER PROCEDURE dbo.sp_Facturas_Crear
+    @IdCliente INT,
+    @IdUsuario INT,
+    @MetodoPago VARCHAR(20),
+    @PorcentajeImpuesto DECIMAL(5,4),
+    @ObrasJson NVARCHAR(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @IdEstadoFactura INT;
+    DECLARE @IdFactura INT;
+    DECLARE @Subtotal DECIMAL(18,2);
+    DECLARE @Impuesto DECIMAL(18,2);
+    DECLARE @Total DECIMAL(18,2);
+
+    SELECT TOP 1
+        @IdEstadoFactura = IdEstadoFactura
+    FROM dbo.EstadoFactura
+    WHERE Nombre = N'Emitida'
+      AND Estado = 1;
+
+    IF @IdEstadoFactura IS NULL
+    BEGIN
+        RAISERROR(
+            'No existe el estado Emitida para las facturas.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.Clientes
+        WHERE IdCliente = @IdCliente
+          AND Estado = 1
+    )
+    BEGIN
+        RAISERROR(
+            'El cliente seleccionado no existe o está inactivo.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF NOT EXISTS
+    (
+        SELECT 1
+        FROM dbo.Usuarios
+        WHERE IdUsuario = @IdUsuario
+          AND Estado = 1
+    )
+    BEGIN
+        RAISERROR(
+            'El usuario no existe o está inactivo.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF NULLIF(LTRIM(RTRIM(@MetodoPago)), '') IS NULL
+    BEGIN
+        RAISERROR(
+            'Debe indicar el método de pago.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF @PorcentajeImpuesto < 0
+    BEGIN
+        RAISERROR(
+            'El porcentaje de impuesto no puede ser negativo.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF ISJSON(@ObrasJson) <> 1
+    BEGIN
+        RAISERROR(
+            'La información de las obras no tiene un formato válido.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    DECLARE @Obras TABLE
+    (
+        IdObra INT NOT NULL,
+        PrecioUnitario DECIMAL(18,2) NOT NULL
+    );
+
+    INSERT INTO @Obras
+    (
+        IdObra,
+        PrecioUnitario
+    )
+    SELECT
+        IdObra,
+        PrecioUnitario
+    FROM OPENJSON(@ObrasJson)
+    WITH
+    (
+        IdObra INT '$.IdObra',
+        PrecioUnitario DECIMAL(18,2) '$.PrecioUnitario'
+    );
+
+    IF NOT EXISTS
+    (
+        SELECT 1
+        FROM @Obras
+    )
+    BEGIN
+        RAISERROR(
+            'Debe seleccionar al menos una obra.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF EXISTS
+    (
+        SELECT IdObra
+        FROM @Obras
+        GROUP BY IdObra
+        HAVING COUNT(*) > 1
+    )
+    BEGIN
+        RAISERROR(
+            'No se puede agregar la misma obra más de una vez.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF EXISTS
+    (
+        SELECT 1
+        FROM @Obras
+        WHERE PrecioUnitario <= 0
+    )
+    BEGIN
+        RAISERROR(
+            'Todas las obras deben tener un precio mayor que cero.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF EXISTS
+    (
+        SELECT 1
+        FROM @Obras X
+        LEFT JOIN dbo.Obras O
+            ON X.IdObra = O.IdObra
+        WHERE O.IdObra IS NULL
+           OR O.Estado = 0
+    )
+    BEGIN
+        RAISERROR(
+            'Una de las obras seleccionadas no existe o no está disponible.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    SELECT
+        @Subtotal = SUM(PrecioUnitario)
+    FROM @Obras;
+
+    SET @Impuesto =
+        ROUND(
+            @Subtotal * @PorcentajeImpuesto,
+            2
+        );
+
+    SET @Total =
+        @Subtotal + @Impuesto;
+
+    BEGIN TRY
+
+        BEGIN TRANSACTION;
+
+        INSERT INTO dbo.Facturas
+        (
+            IdCliente,
+            IdUsuario,
+            IdEstadoFactura,
+            FechaFactura,
+            MetodoPago,
+            Subtotal,
+            Impuesto,
+            Total
+        )
+        VALUES
+        (
+            @IdCliente,
+            @IdUsuario,
+            @IdEstadoFactura,
+            SYSDATETIME(),
+            @MetodoPago,
+            @Subtotal,
+            @Impuesto,
+            @Total
+        );
+
+        SET @IdFactura =
+            CAST(SCOPE_IDENTITY() AS INT);
+
+        INSERT INTO dbo.DetalleFactura
+        (
+            IdFactura,
+            IdObra,
+            Cantidad,
+            PrecioUnitario,
+            Subtotal
+        )
+        SELECT
+            @IdFactura,
+            IdObra,
+            1,
+            PrecioUnitario,
+            PrecioUnitario
+        FROM @Obras;
+
+        UPDATE O
+        SET O.Estado = 0
+        FROM dbo.Obras O
+        INNER JOIN @Obras X
+            ON O.IdObra = X.IdObra;
+
+
+        /* =====================================================
+           BITÁCORA DE VENTAS
+           ===================================================== */
+
+        INSERT INTO dbo.BitacoraVentas
+        (
+            IdUsuario,
+            Procedimiento,
+            Operacion,
+            RegistroAfectado,
+            Detalle,
+            FechaHora,
+            Resultado
+        )
+        VALUES
+        (
+            @IdUsuario,
+            'sp_Facturas_Crear',
+            'INSERT',
+            @IdFactura,
+            CONCAT(
+                'Venta registrada. Factura #',
+                @IdFactura,
+                '. Cliente ID: ',
+                @IdCliente,
+                '. Método de pago: ',
+                @MetodoPago,
+                '. Subtotal: ',
+                @Subtotal,
+                '. Impuesto: ',
+                @Impuesto,
+                '. Total: ',
+                @Total
+            ),
+            SYSDATETIME(),
+            'EXITOSO'
+        );
+
+
+        /* =====================================================
+           BITÁCORA GENERAL
+           ===================================================== */
+
+        INSERT INTO dbo.BitacoraGeneral
+        (
+            IdUsuario,
+            Modulo,
+            TablaAfectada,
+            TipoOperacion,
+            RegistroAfectado,
+            ValorAnterior,
+            ValorNuevo,
+            FechaHora,
+            Resultado
+        )
+        VALUES
+        (
+            @IdUsuario,
+            'Ventas',
+            'Facturas',
+            'INSERT',
+            @IdFactura,
+            NULL,
+            CONCAT(
+                'Factura #',
+                @IdFactura,
+                ' | Cliente: ',
+                @IdCliente,
+                ' | Total: ',
+                @Total,
+                ' | Pago: ',
+                @MetodoPago
+            ),
+            SYSDATETIME(),
+            'EXITOSO'
+        );
+
+
+        COMMIT TRANSACTION;
+
+
+        /* IMPORTANTE:
+           FacturaRepository espera este resultado.
+        */
+
+        SELECT
+            @IdFactura AS IdFactura;
+
+    END TRY
+
+    BEGIN CATCH
+
+        IF @@TRANCOUNT > 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+        END;
+
+        THROW;
+
+    END CATCH;
+END
+
+
+GO
+
+
+CREATE OR ALTER PROCEDURE dbo.sp_Facturas_Anular
+    @IdFactura INT,
+    @IdUsuario INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @IdEstadoAnulada INT;
+    DECLARE @EstadoAnterior NVARCHAR(30);
+
+    SELECT TOP 1
+        @IdEstadoAnulada =
+            IdEstadoFactura
+    FROM dbo.EstadoFactura
+    WHERE Nombre = N'Anulada'
+      AND Estado = 1;
+
+    IF @IdEstadoAnulada IS NULL
+    BEGIN
+        RAISERROR(
+            'No existe el estado Anulada.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    SELECT
+        @EstadoAnterior = EF.Nombre
+    FROM dbo.Facturas F
+    INNER JOIN dbo.EstadoFactura EF
+        ON F.IdEstadoFactura =
+           EF.IdEstadoFactura
+    WHERE F.IdFactura =
+        @IdFactura;
+
+    IF @EstadoAnterior IS NULL
+    BEGIN
+        RAISERROR(
+            'La factura indicada no existe.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    IF @EstadoAnterior = N'Anulada'
+    BEGIN
+        RAISERROR(
+            'La factura ya se encuentra anulada.',
+            16,
+            1
+        );
+        RETURN;
+    END;
+
+    BEGIN TRY
+
+        BEGIN TRANSACTION;
+
+        UPDATE dbo.Facturas
+        SET IdEstadoFactura =
+            @IdEstadoAnulada
+        WHERE IdFactura =
+            @IdFactura;
+
+
+        /* Devolver obras a disponibles */
+
+        UPDATE O
+        SET O.Estado = 1
+        FROM dbo.Obras O
+        INNER JOIN dbo.DetalleFactura DF
+            ON O.IdObra =
+               DF.IdObra
+        WHERE DF.IdFactura =
+            @IdFactura;
+
+
+        /* =====================================================
+           BITÁCORA DE VENTAS
+           ===================================================== */
+
+        INSERT INTO dbo.BitacoraVentas
+        (
+            IdUsuario,
+            Procedimiento,
+            Operacion,
+            RegistroAfectado,
+            Detalle,
+            FechaHora,
+            Resultado
+        )
+        VALUES
+        (
+            @IdUsuario,
+            'sp_Facturas_Anular',
+            'UPDATE',
+            @IdFactura,
+            CONCAT(
+                'Factura #',
+                @IdFactura,
+                ' anulada. Estado anterior: ',
+                @EstadoAnterior,
+                '. Nuevo estado: Anulada.'
+            ),
+            SYSDATETIME(),
+            'EXITOSO'
+        );
+
+
+        /* =====================================================
+           BITÁCORA GENERAL
+           ===================================================== */
+
+        INSERT INTO dbo.BitacoraGeneral
+        (
+            IdUsuario,
+            Modulo,
+            TablaAfectada,
+            TipoOperacion,
+            RegistroAfectado,
+            ValorAnterior,
+            ValorNuevo,
+            FechaHora,
+            Resultado
+        )
+        VALUES
+        (
+            @IdUsuario,
+            'Ventas',
+            'Facturas',
+            'UPDATE',
+            @IdFactura,
+            @EstadoAnterior,
+            'Anulada',
+            SYSDATETIME(),
+            'EXITOSO'
+        );
+
+
+        COMMIT TRANSACTION;
+
+    END TRY
+
+    BEGIN CATCH
+
+        IF @@TRANCOUNT > 0
+        BEGIN
+            ROLLBACK TRANSACTION;
+        END;
+
+        THROW;
+
+    END CATCH;
+END
+
+
+GO
+
+GO

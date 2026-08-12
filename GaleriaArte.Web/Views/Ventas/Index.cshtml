@@ -1,14 +1,14 @@
-@model GaleriaArte.Web.Models.VentaCrearViewModel
+﻿@model GaleriaArte.Web.Models.VentaCrearViewModel
 
 @{
-    ViewData["Title"] = "Registrar venta";
+    ViewData["Title"] = "Ventas";
 }
 
 <div class="page-header page-header-actions">
 
     <div>
-        <h1>Registrar venta</h1>
-        <p>Compra realizada por un visitante durante su visita.</p>
+        <h1>Ventas</h1>
+        <p>Registro de ventas de obras de arte.</p>
     </div>
 
     <a asp-controller="Ventas"
@@ -28,81 +28,214 @@
 
 <form asp-controller="Ventas"
       asp-action="Index"
-      method="post">
+      method="post"
+      id="ventaForm">
 
     @Html.AntiForgeryToken()
 
     <div asp-validation-summary="ModelOnly"
-         class="validation-summary">
+         class="text-danger mb-3">
     </div>
 
-    <div class="form-card">
+    <div class="table-card mb-4">
 
-        <div class="form-grid">
+        <div class="p-4">
 
-            <div class="form-group">
+            <div class="row">
 
-                <label asp-for="IdCliente"></label>
+                <div class="col-md-8 mb-3">
 
-                <select asp-for="IdCliente"
-                        class="form-control">
+                    <label asp-for="IdCliente"
+                           class="form-label">
+                    </label>
 
-                    <option value="">
-                        Seleccione un visitante
-                    </option>
+                    <select asp-for="IdCliente"
+                            class="form-select">
 
-                    @foreach (var cliente in Model.ClientesDisponibles)
-                    {
-                        <option value="@cliente.IdCliente">
-                            @cliente.NombreCompleto
+                        <option value="">
+                            Seleccione un cliente
                         </option>
+
+                        @foreach (var cliente in Model.ClientesDisponibles)
+                        {
+                            <option value="@cliente.IdCliente">
+                                @cliente.NombreCompleto
+                            </option>
+                        }
+
+                    </select>
+
+                    <span asp-validation-for="IdCliente"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+
+                    <label asp-for="MetodoPago"
+                           class="form-label">
+                    </label>
+
+                    <select asp-for="MetodoPago"
+                            class="form-select">
+
+                        <option value="">
+                            Seleccione
+                        </option>
+
+                        <option value="Efectivo">
+                            Efectivo
+                        </option>
+
+                        <option value="Tarjeta">
+                            Tarjeta
+                        </option>
+
+                        <option value="Transferencia">
+                            Transferencia
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="MetodoPago"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-lg-8">
+
+            <div class="table-card">
+
+                <div class="p-4 border-bottom">
+
+                    <h3 class="mb-1">
+                        Obras disponibles
+                    </h3>
+
+                    <p class="text-muted mb-3">
+                        Seleccione las obras que desea incluir.
+                    </p>
+
+                    @if (Model.ObrasDisponibles.Count > 0)
+                    {
+                        <div class="position-relative">
+
+                            <i class="bi bi-search search-icon"></i>
+
+                            <input type="search"
+                                   id="buscarObra"
+                                   class="form-control search-input"
+                                   placeholder="Buscar por nombre, código, artista o categoría..."
+                                   autocomplete="off" />
+
+                        </div>
                     }
 
-                </select>
+                </div>
 
-                <span asp-validation-for="IdCliente"
-                      class="field-validation">
-                </span>
-
-            </div>
-
-            <div class="form-group">
-
-                <label asp-for="MetodoPago"></label>
-
-                <select asp-for="MetodoPago"
-                        class="form-control">
-
-                    <option value="">
-                        Seleccione
-                    </option>
-
-                    <option value="Efectivo">Efectivo</option>
-                    <option value="Tarjeta">Tarjeta</option>
-                    <option value="Transferencia">Transferencia</option>
-
-                </select>
-
-                <span asp-validation-for="MetodoPago"
-                      class="field-validation">
-                </span>
-
-            </div>
-
-            <div class="form-group full-width">
-
-                @if (Model.ClientesDisponibles.Count == 0)
+                @if (Model.ObrasDisponibles.Count == 0)
                 {
-                    <div class="secondary-text">
-                        No hay visitantes dentro de la galería. Registre la
-                        entrada en el módulo de Visitas antes de facturar.
+                    <div class="empty">
+                        No hay obras disponibles para vender.
                     </div>
                 }
                 else
                 {
-                    <div class="secondary-text">
-                        Solo aparecen los visitantes que están dentro de la
-                        galería. La compra queda ligada a su visita.
+                    <div class="table-responsive">
+
+                        <table class="data-table"
+                               id="tablaObras">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Seleccionar</th>
+                                    <th>Obra</th>
+                                    <th>Artista</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var obra in Model.ObrasDisponibles)
+                                {
+                                    string textoBusqueda =
+                                        $"{obra.Nombre} {obra.Codigo} {obra.NombreArtista} {obra.NombreCategoria}";
+
+                                    <tr class="obra-row"
+                                        data-busqueda="@textoBusqueda">
+
+                                        <td>
+
+                                            <input type="checkbox"
+                                                   class="form-check-input obra-check"
+                                                   data-id="@obra.IdObra"
+                                                   data-nombre="@obra.Nombre"
+                                                   data-precio="@obra.ValorEstimado.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+
+                                        </td>
+
+                                        <td>
+
+                                            <div class="obra-name">
+                                                @obra.Nombre
+                                            </div>
+
+                                            <div class="obra-code">
+                                                @obra.Codigo
+                                            </div>
+
+                                        </td>
+
+                                        <td>
+                                            @obra.NombreArtista
+                                        </td>
+
+                                        <td>
+                                            @obra.NombreCategoria
+                                        </td>
+
+                                        <td>
+
+                                            <strong>
+                                                ₡@obra.ValorEstimado.ToString("N2")
+                                            </strong>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                                <tr id="sinResultados"
+                                    style="display: none;">
+
+                                    <td colspan="5">
+
+                                        <div class="empty">
+                                            No se encontraron obras con ese criterio.
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
                     </div>
                 }
 
@@ -110,213 +243,88 @@
 
         </div>
 
-    </div>
+        <div class="col-lg-4">
 
-    <div class="page-header">
+            <div class="table-card resumen-venta">
 
-        <h1>Productos</h1>
+                <div class="p-4 border-bottom">
 
-        <p>
-            Marque los productos e indique la cantidad.
-            El inventario se rebaja al registrar la venta.
-        </p>
+                    <h3 class="mb-1">
+                        Resumen
+                    </h3>
 
-    </div>
+                    <p class="text-muted mb-0">
+                        Obras seleccionadas para la venta.
+                    </p>
 
-    @if (Model.ProductosDisponibles.Count > 0)
-    {
-        <div class="filter-bar">
+                </div>
 
-            <input type="search"
-                   id="buscarProducto"
-                   class="form-control filter-input"
-                   placeholder="Nombre, código o proveedor"
-                   aria-label="Buscar producto"
-                   autocomplete="off" />
+                <div class="p-4">
 
-        </div>
-    }
+                    <div id="detalleSeleccionado"
+                         class="mb-4">
 
-    @if (Model.ProductosDisponibles.Count == 0)
-    {
-        <div class="table-card">
+                        <p class="text-muted"
+                           id="mensajeVacio">
+                            No hay obras seleccionadas.
+                        </p>
 
-            <div class="empty">
-                No hay productos con existencias para vender.
-            </div>
+                    </div>
 
-        </div>
-    }
-    else
-    {
-        <div class="table-card">
+                    <hr />
 
-            <div class="table-responsive">
+                    <div class="d-flex justify-content-between mb-2">
 
-                <table class="data-table ventas-table">
+                        <span>
+                            Subtotal
+                        </span>
 
-                    <thead>
+                        <strong id="subtotalTexto">
+                            ₡0.00
+                        </strong>
 
-                        <tr>
+                    </div>
 
-                            <th>Incluir</th>
-                            <th>Producto</th>
-                            <th>Proveedor</th>
-                            <th>Existencias</th>
-                            <th>Precio</th>
-                            <th>Cantidad</th>
+                    <div class="d-flex justify-content-between mb-2">
 
-                        </tr>
+                        <span>
+                            IVA (13%)
+                        </span>
 
-                    </thead>
+                        <strong id="impuestoTexto">
+                            ₡0.00
+                        </strong>
 
-                    <tbody>
+                    </div>
 
-                        @foreach (var producto in Model.ProductosDisponibles)
-                        {
-                            <tr class="producto-row"
-                                data-busqueda="@($"{producto.Nombre} {producto.Codigo} {producto.NombreProveedor}")">
+                    <div class="d-flex justify-content-between fs-5 mb-4">
 
-                                <td>
+                        <span>
+                            Total
+                        </span>
 
-                                    <input type="checkbox"
-                                           class="producto-check"
-                                           data-id="@producto.IdProducto"
-                                           data-nombre="@producto.Nombre"
-                                           data-stock="@producto.Stock"
-                                           data-precio="@producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                        <strong id="totalTexto">
+                            ₡0.00
+                        </strong>
 
-                                </td>
+                    </div>
 
-                                <td>
+                    <input asp-for="PorcentajeImpuesto"
+                           type="hidden" />
 
-                                    <div class="obra-name">
-                                        @producto.Nombre
-                                    </div>
+                    <div id="camposObras">
+                    </div>
 
-                                    <div class="obra-code">
-                                        @producto.Codigo
-                                    </div>
+                    <button type="submit"
+                            class="btn-primary w-100"
+                            id="btnRegistrar"
+                            disabled>
+                        Registrar venta
+                    </button>
 
-                                </td>
-
-                                <td>
-
-                                    <div class="artist-name">
-                                        @producto.NombreProveedor
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    @if (producto.Stock <= producto.StockMinimo)
-                                    {
-                                        <span class="badge status-inactive">
-                                            @producto.Stock
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge status-active">
-                                            @producto.Stock
-                                        </span>
-                                    }
-
-                                </td>
-
-                                <td>
-
-                                    <div class="value">
-                                        ₡@producto.Precio.ToString("N2")
-                                    </div>
-
-                                </td>
-
-                                <td>
-
-                                    <input type="number"
-                                           class="form-control producto-cantidad"
-                                           value="1"
-                                           min="1"
-                                           max="@producto.Stock"
-                                           disabled />
-
-                                </td>
-
-                            </tr>
-                        }
-
-                        <tr id="sinResultados"
-                            style="display: none;">
-
-                            <td colspan="6">
-
-                                <div class="empty">
-                                    No se encontraron productos con ese criterio.
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
-
-        </div>
-    }
-
-    <div class="form-card resumen-venta">
-
-        <h2>Resumen</h2>
-
-        <div id="detalleSeleccionado">
-
-            <p class="secondary-text"
-               id="mensajeVacio">
-                No hay productos seleccionados.
-            </p>
-
-        </div>
-
-        <div class="resumen-linea">
-            <span>Subtotal</span>
-            <strong id="subtotalTexto">₡0.00</strong>
-        </div>
-
-        <div class="resumen-linea">
-            <span>IVA (13%)</span>
-            <strong id="impuestoTexto">₡0.00</strong>
-        </div>
-
-        <div class="resumen-linea resumen-total">
-            <span>Total</span>
-            <strong id="totalTexto">₡0.00</strong>
-        </div>
-
-        <input asp-for="PorcentajeImpuesto"
-               type="hidden" />
-
-        <div id="camposProductos">
-        </div>
-
-        <div class="form-actions">
-
-            <a asp-controller="Ventas"
-               asp-action="Historial"
-               class="btn-secondary">
-                Cancelar
-            </a>
-
-            <button type="submit"
-                    class="btn-primary"
-                    id="btnRegistrar"
-                    disabled>
-                Registrar venta
-            </button>
 
         </div>
 
@@ -328,5 +336,245 @@
 {
     <partial name="_ValidationScriptsPartial" />
 
-    <script src="~/js/ventas.js" asp-append-version="true"></script>
+    <script>
+        const checks =
+            document.querySelectorAll(".obra-check");
+
+        const filasObras =
+            document.querySelectorAll(".obra-row");
+
+        const buscarObra =
+            document.getElementById("buscarObra");
+
+        const sinResultados =
+            document.getElementById("sinResultados");
+
+        const detalleSeleccionado =
+            document.getElementById("detalleSeleccionado");
+
+        const mensajeVacio =
+            document.getElementById("mensajeVacio");
+
+        const subtotalTexto =
+            document.getElementById("subtotalTexto");
+
+        const impuestoTexto =
+            document.getElementById("impuestoTexto");
+
+        const totalTexto =
+            document.getElementById("totalTexto");
+
+        const camposObras =
+            document.getElementById("camposObras");
+
+        const btnRegistrar =
+            document.getElementById("btnRegistrar");
+
+        function normalizarTexto(texto) {
+            return texto
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim();
+        }
+
+        function filtrarObras() {
+            if (!buscarObra) {
+                return;
+            }
+
+            const termino =
+                normalizarTexto(buscarObra.value);
+
+            let cantidadVisible = 0;
+
+            filasObras.forEach(fila => {
+                const contenido =
+                    normalizarTexto(
+                        fila.dataset.busqueda ?? ""
+                    );
+
+                const coincide =
+                    contenido.includes(termino);
+
+                fila.style.display =
+                    coincide ? "" : "none";
+
+                if (coincide) {
+                    cantidadVisible++;
+                }
+            });
+
+            if (sinResultados) {
+                sinResultados.style.display =
+                    cantidadVisible === 0
+                        ? ""
+                        : "none";
+            }
+        }
+
+        function formatoMoneda(valor) {
+            return new Intl.NumberFormat(
+                "es-CR",
+                {
+                    style: "currency",
+                    currency: "CRC"
+                }
+            ).format(valor);
+        }
+
+        function actualizarResumen() {
+            const seleccionadas =
+                Array.from(checks)
+                    .filter(check => check.checked);
+
+            detalleSeleccionado.innerHTML = "";
+            camposObras.innerHTML = "";
+
+            let subtotal = 0;
+
+            if (seleccionadas.length === 0) {
+                detalleSeleccionado.appendChild(
+                    mensajeVacio
+                );
+
+                btnRegistrar.disabled = true;
+            }
+            else {
+                seleccionadas.forEach(
+                    (check, indice) => {
+
+                        const id =
+                            check.dataset.id;
+
+                        const nombre =
+                            check.dataset.nombre;
+
+                        const precio =
+                            Number(check.dataset.precio);
+
+                        subtotal += precio;
+
+                        const fila =
+                            document.createElement("div");
+
+                        fila.className =
+                            "d-flex justify-content-between gap-3 mb-2";
+
+                        const nombreObra =
+                            document.createElement("span");
+
+                        nombreObra.textContent =
+                            nombre;
+
+                        const precioObra =
+                            document.createElement("strong");
+
+                        precioObra.textContent =
+                            formatoMoneda(precio);
+
+                        fila.appendChild(nombreObra);
+                        fila.appendChild(precioObra);
+
+                        detalleSeleccionado.appendChild(
+                            fila
+                        );
+
+                        const campoId =
+                            document.createElement("input");
+
+                        campoId.type =
+                            "hidden";
+
+                        campoId.name =
+                            `Obras[${indice}].IdObra`;
+
+                        campoId.value =
+                            id;
+
+                        const campoPrecio =
+                            document.createElement("input");
+
+                        campoPrecio.type =
+                            "hidden";
+
+                        campoPrecio.name =
+                            `Obras[${indice}].PrecioUnitario`;
+
+                        campoPrecio.value =
+                            precio;
+
+                        camposObras.appendChild(
+                            campoId
+                        );
+
+                        camposObras.appendChild(
+                            campoPrecio
+                        );
+                    }
+                );
+
+                btnRegistrar.disabled = false;
+            }
+
+            const impuesto =
+                subtotal * 0.13;
+
+            const total =
+                subtotal + impuesto;
+
+            subtotalTexto.textContent =
+                formatoMoneda(subtotal);
+
+            impuestoTexto.textContent =
+                formatoMoneda(impuesto);
+
+            totalTexto.textContent =
+                formatoMoneda(total);
+        }
+
+        checks.forEach(check => {
+            check.addEventListener(
+                "change",
+                actualizarResumen
+            );
+        });
+
+        if (buscarObra) {
+            buscarObra.addEventListener(
+                "input",
+                filtrarObras
+            );
+        }
+
+        actualizarResumen();
+    </script>
 }
+
+<style>
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 2;
+        color: #6c757d;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .search-input {
+        padding-left: 42px;
+    }
+
+    .resumen-venta {
+        position: sticky;
+        top: 20px;
+    }
+
+    @@media (max-width: 991px) {
+        .resumen-venta {
+            position: static;
+            margin-top: 24px;
+        }
+    }
+</style>

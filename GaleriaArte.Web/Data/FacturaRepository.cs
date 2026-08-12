@@ -24,17 +24,13 @@ namespace GaleriaArte.Web.Data
             VentaCrearViewModel venta,
             int idUsuario)
         {
-            // El procedimiento toma el precio actual de cada producto,
-            // aqui solo viaja que se lleva y cuanto.
-            string productosJson =
+            string obrasJson =
                 JsonSerializer.Serialize(
-                    venta.Productos
-                        .Where(producto => producto.Cantidad > 0)
-                        .Select(producto => new
-                        {
-                            producto.IdProducto,
-                            producto.Cantidad
-                        })
+                    venta.Obras.Select(obra => new
+                    {
+                        obra.IdObra,
+                        obra.PrecioUnitario
+                    })
                 );
 
             await using SqlConnection connection =
@@ -77,10 +73,10 @@ namespace GaleriaArte.Web.Data
                 venta.PorcentajeImpuesto;
 
             command.Parameters.Add(
-                "@ProductosJson",
+                "@ObrasJson",
                 SqlDbType.NVarChar,
                 -1
-            ).Value = productosJson;
+            ).Value = obrasJson;
 
             await connection.OpenAsync();
 
@@ -172,22 +168,22 @@ namespace GaleriaArte.Web.Data
         }
 
         // =====================================================
-        // LISTAR PRODUCTOS DISPONIBLES
-        // Procedimiento: sp_Productos_ListarDisponibles
+        // LISTAR OBRAS DISPONIBLES
+        // Procedimiento: sp_Obras_ListarDisponibles
         // =====================================================
 
-        public async Task<List<Producto>>
-            ObtenerProductosDisponiblesAsync()
+        public async Task<List<Obra>>
+            ObtenerObrasDisponiblesAsync()
         {
-            List<Producto> productos =
-                new List<Producto>();
+            List<Obra> obras =
+                new List<Obra>();
 
             await using SqlConnection connection =
                 _databaseConnection.CreateConnection();
 
             await using SqlCommand command =
                 new SqlCommand(
-                    "sp_Productos_ListarDisponibles",
+                    "sp_Obras_ListarDisponibles",
                     connection
                 );
 
@@ -201,10 +197,18 @@ namespace GaleriaArte.Web.Data
 
             while (await reader.ReadAsync())
             {
-                productos.Add(new Producto
+                obras.Add(new Obra
                 {
-                    IdProducto = reader.GetInt32(
-                        reader.GetOrdinal("IdProducto")
+                    IdObra = reader.GetInt32(
+                        reader.GetOrdinal("IdObra")
+                    ),
+
+                    IdArtista = reader.GetInt32(
+                        reader.GetOrdinal("IdArtista")
+                    ),
+
+                    IdCategoria = reader.GetInt32(
+                        reader.GetOrdinal("IdCategoria")
                     ),
 
                     Codigo = reader.GetString(
@@ -220,112 +224,46 @@ namespace GaleriaArte.Web.Data
                             ? null
                             : reader["Descripcion"].ToString(),
 
-                    Stock = reader.GetInt32(
-                        reader.GetOrdinal("Stock")
-                    ),
+                    FechaCreacion =
+                        reader["FechaCreacion"] == DBNull.Value
+                            ? null
+                            : Convert.ToDateTime(
+                                reader["FechaCreacion"]
+                            ),
 
-                    StockMinimo = reader.GetInt32(
-                        reader.GetOrdinal("StockMinimo")
-                    ),
-
-                    Precio =
-                        Convert.ToDecimal(
-                            reader["Precio"]
+                    FechaIngresoGaleria =
+                        Convert.ToDateTime(
+                            reader["FechaIngresoGaleria"]
                         ),
 
-                    Estado = true,
+                    ValorEstimado =
+                        Convert.ToDecimal(
+                            reader["ValorEstimado"]
+                        ),
 
-                    NombreProveedor =
-                        reader["NombreProveedor"]?.ToString()
+                    EstadoConservacion =
+                        reader.GetString(
+                            reader.GetOrdinal(
+                                "EstadoConservacion"
+                            )
+                        ),
+
+                    Estado =
+                        Convert.ToBoolean(
+                            reader["Estado"]
+                        ),
+
+                    NombreArtista =
+                        reader["NombreArtista"]?.ToString()
+                        ?? string.Empty,
+
+                    NombreCategoria =
+                        reader["NombreCategoria"]?.ToString()
                         ?? string.Empty
                 });
             }
 
-            return productos;
-        }
-
-        // =====================================================
-        // CLIENTES QUE ESTAN DENTRO DE LA GALERIA
-        // Solo ellos pueden comprar, porque la factura
-        // pertenece a una visita en curso.
-        // =====================================================
-
-        public async Task<List<Cliente>>
-            ObtenerClientesEnGaleriaAsync()
-        {
-            List<Cliente> clientes =
-                new List<Cliente>();
-
-            await using SqlConnection connection =
-                _databaseConnection.CreateConnection();
-
-            const string sql = @"
-                SELECT DISTINCT
-                    C.IdCliente,
-                    C.Nombre,
-                    C.Apellido,
-                    C.Telefono,
-                    C.Correo,
-                    C.Direccion,
-                    C.Estado,
-                    C.FechaRegistro
-                FROM Clientes AS C
-                INNER JOIN Visitas AS V
-                    ON V.IdCliente = C.IdCliente
-                WHERE C.Estado = 1
-                  AND V.FechaSalida IS NULL
-                ORDER BY C.Nombre, C.Apellido;";
-
-            await using SqlCommand command =
-                new SqlCommand(sql, connection);
-
-            await connection.OpenAsync();
-
-            await using SqlDataReader reader =
-                await command.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
-            {
-                clientes.Add(new Cliente
-                {
-                    IdCliente = reader.GetInt32(
-                        reader.GetOrdinal("IdCliente")
-                    ),
-
-                    Nombre = reader.GetString(
-                        reader.GetOrdinal("Nombre")
-                    ),
-
-                    Apellido = reader.GetString(
-                        reader.GetOrdinal("Apellido")
-                    ),
-
-                    Telefono =
-                        reader["Telefono"] == DBNull.Value
-                            ? null
-                            : reader["Telefono"].ToString(),
-
-                    Correo =
-                        reader["Correo"] == DBNull.Value
-                            ? null
-                            : reader["Correo"].ToString(),
-
-                    Direccion =
-                        reader["Direccion"] == DBNull.Value
-                            ? null
-                            : reader["Direccion"].ToString(),
-
-                    Estado = Convert.ToBoolean(
-                        reader["Estado"]
-                    ),
-
-                    FechaRegistro = Convert.ToDateTime(
-                        reader["FechaRegistro"]
-                    )
-                });
-            }
-
-            return clientes;
+            return obras;
         }
 
         // =====================================================
@@ -431,10 +369,10 @@ namespace GaleriaArte.Web.Data
                                     )
                                 ),
 
-                            IdProducto =
+                            IdObra =
                                 reader.GetInt32(
                                     reader.GetOrdinal(
-                                        "IdProducto"
+                                        "IdObra"
                                     )
                                 ),
 
@@ -457,13 +395,18 @@ namespace GaleriaArte.Web.Data
                                     reader["Subtotal"]
                                 ),
 
-                            CodigoProducto =
-                                reader["CodigoProducto"]
+                            CodigoObra =
+                                reader["CodigoObra"]
                                     ?.ToString()
                                 ?? string.Empty,
 
-                            NombreProducto =
-                                reader["NombreProducto"]
+                            NombreObra =
+                                reader["NombreObra"]
+                                    ?.ToString()
+                                ?? string.Empty,
+
+                            NombreArtista =
+                                reader["NombreArtista"]
                                     ?.ToString()
                                 ?? string.Empty
                         }
@@ -530,10 +473,6 @@ namespace GaleriaArte.Web.Data
                     reader.GetOrdinal("IdCliente")
                 ),
 
-                IdVisita = reader.GetInt32(
-                    reader.GetOrdinal("IdVisita")
-                ),
-
                 IdUsuario = reader.GetInt32(
                     reader.GetOrdinal("IdUsuario")
                 ),
@@ -578,19 +517,7 @@ namespace GaleriaArte.Web.Data
 
                 EstadoFactura =
                     reader["EstadoFactura"]?.ToString()
-                    ?? string.Empty,
-
-                FechaIngresoVisita =
-                    Convert.ToDateTime(
-                        reader["FechaIngresoVisita"]
-                    ),
-
-                FechaSalidaVisita =
-                    reader["FechaSalidaVisita"] == DBNull.Value
-                        ? null
-                        : Convert.ToDateTime(
-                            reader["FechaSalidaVisita"]
-                        )
+                    ?? string.Empty
             };
         }
     }
