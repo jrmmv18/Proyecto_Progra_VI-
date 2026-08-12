@@ -2285,3 +2285,104 @@ body.tema-oscuro .invoice-data-row,
 body.tema-oscuro .invoice-total-row {
     border-color: #3d4250;
 }
+
+
+/* =====================================================
+   MODO OSCURO: CORRECCIONES DE LEGIBILIDAD
+
+   Cada regla de aqui salio de medir el contraste real
+   del texto contra su fondo. Todas quedaban por debajo
+   de 4.5:1, que es el minimo para leerse comodo.
+===================================================== */
+
+
+/* El panel principal conservaba su fondo crema, asi que
+   los titulos claros quedaban invisibles sobre el. */
+
+body.tema-oscuro .dashboard-content {
+    background: transparent;
+}
+
+body.tema-oscuro .dashboard-content::before {
+    opacity: .05;
+}
+
+
+/* La ficha del usuario mantenia su caja oscura dentro de
+   una barra lateral que ahora es clara. */
+
+body.tema-oscuro .user-info {
+    background: #ece6df;
+}
+
+body.tema-oscuro .user-avatar {
+    color: #17663b;
+}
+
+    /* El rol es texto pequeño, necesita mas contraste */
+    body.tema-oscuro .user-role {
+        color: #565c66;
+    }
+
+
+/* Los avisos de validacion usaban un rojo pensado para
+   fondo blanco. */
+
+body.tema-oscuro .field-validation,
+body.tema-oscuro .validation-summary,
+body.tema-oscuro .validation-summary li,
+body.tema-oscuro .text-danger {
+    color: #f5928a;
+}
+
+
+/* Textos secundarios del modulo Acerca de. */
+
+body.tema-oscuro .about-item-text,
+body.tema-oscuro .about-etiqueta {
+    color: #a8aeb9;
+}
+
+
+/* Etiquetas del comprobante de factura. */
+
+body.tema-oscuro .invoice-brand p,
+body.tema-oscuro .invoice-number span,
+body.tema-oscuro .invoice-data-row span:first-child,
+body.tema-oscuro .invoice-total-row span,
+body.tema-oscuro .invoice-footer p,
+body.tema-oscuro .invoice-footer small {
+    color: #a8aeb9;
+}
+
+body.tema-oscuro .invoice-card,
+body.tema-oscuro .invoice-summary {
+    color: #eceef1;
+}
+
+
+/* El enlace de las tarjetas del panel conservaba su
+   fondo claro con texto cafe. */
+
+body.tema-oscuro .card-link {
+    background: #3d4250;
+    color: #e4d9cc;
+}
+
+    body.tema-oscuro .card-link:hover {
+        background: #4a5162;
+        color: white;
+    }
+
+    body.tema-oscuro .card-link.disabled {
+        background: #363b4a;
+        color: #8c93a1;
+    }
+
+
+/* El icono de cada tarjeta del panel usa fondos claros
+   con texto del mismo tono de color. */
+
+body.tema-oscuro .card-icon {
+    background: #363b4a;
+}
