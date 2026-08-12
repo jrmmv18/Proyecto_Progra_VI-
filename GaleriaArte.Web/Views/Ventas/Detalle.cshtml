@@ -25,7 +25,7 @@
                   asp-action="Anular"
                   asp-route-id="@Model.IdFactura"
                   method="post"
-                  onsubmit="return confirm('¿Está seguro de que desea anular esta factura? Las obras volverán a estar disponibles.');">
+                  onsubmit="return confirm('¿Está seguro de que desea anular esta factura? Los productos volverán al inventario.');">
 
                 @Html.AntiForgeryToken()
 
@@ -84,7 +84,7 @@
                 <h2>Galería de Arte</h2>
 
                 <p>
-                    Comprobante de venta de obras de arte
+                    Comprobante de venta de productos
                 </p>
 
             </div>
@@ -109,7 +109,7 @@
 
         <div class="invoice-section">
 
-            <h3>Información del cliente</h3>
+            <h3>Información del visitante</h3>
 
             <div class="invoice-data-row">
 
@@ -117,6 +117,38 @@
 
                 <strong>
                     @Model.NombreCliente
+                </strong>
+
+            </div>
+
+            <div class="invoice-data-row">
+
+                <span>Visita:</span>
+
+                <strong>
+                    #@Model.IdVisita
+                </strong>
+
+            </div>
+
+            <div class="invoice-data-row">
+
+                <span>Entrada:</span>
+
+                <strong>
+                    @Model.FechaIngresoVisita.ToString("dd/MM/yyyy hh:mm tt")
+                </strong>
+
+            </div>
+
+            <div class="invoice-data-row">
+
+                <span>Salida:</span>
+
+                <strong>
+                    @(Model.FechaSalidaVisita.HasValue
+                        ? Model.FechaSalidaVisita.Value.ToString("dd/MM/yyyy hh:mm tt")
+                        : "En la galería")
                 </strong>
 
             </div>
@@ -182,13 +214,13 @@
 
     <div class="invoice-detail">
 
-        <h3>Obras adquiridas</h3>
+        <h3>Productos adquiridos</h3>
 
         @if (Model.Detalles == null ||
              Model.Detalles.Count == 0)
         {
             <div class="empty">
-                La factura no contiene obras registradas.
+                La factura no contiene productos registrados.
             </div>
         }
         else
@@ -201,8 +233,7 @@
 
                         <tr>
                             <th>Código</th>
-                            <th>Obra</th>
-                            <th>Artista</th>
+                            <th>Producto</th>
                             <th>Cantidad</th>
                             <th>Precio unitario</th>
                             <th>Subtotal</th>
@@ -217,19 +248,15 @@
                             <tr>
 
                                 <td>
-                                    @detalle.CodigoObra
+                                    @detalle.CodigoProducto
                                 </td>
 
                                 <td>
 
                                     <div class="obra-name">
-                                        @detalle.NombreObra
+                                        @detalle.NombreProducto
                                     </div>
 
-                                </td>
-
-                                <td>
-                                    @detalle.NombreArtista
                                 </td>
 
                                 <td>

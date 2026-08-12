@@ -44,20 +44,29 @@ namespace GaleriaArte.Web.Controllers
         public async Task<IActionResult> Index(
             VentaCrearViewModel model)
         {
-            model.Obras ??=
+            model.Productos ??=
                 new List<DetalleVentaCrearViewModel>();
 
-            model.Obras = model.Obras
-                .Where(obra => obra.IdObra > 0)
-                .GroupBy(obra => obra.IdObra)
-                .Select(grupo => grupo.First())
+            // Se descartan las lineas vacias y se suman las
+            // cantidades cuando el mismo producto viene repetido.
+            model.Productos = model.Productos
+                .Where(producto =>
+                    producto.IdProducto > 0 &&
+                    producto.Cantidad > 0)
+                .GroupBy(producto => producto.IdProducto)
+                .Select(grupo => new DetalleVentaCrearViewModel
+                {
+                    IdProducto = grupo.Key,
+                    Cantidad = grupo.Sum(p => p.Cantidad),
+                    PrecioUnitario = grupo.First().PrecioUnitario
+                })
                 .ToList();
 
-            if (model.Obras.Count == 0)
+            if (model.Productos.Count == 0)
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "Debe seleccionar al menos una obra."
+                    "Debe seleccionar al menos un producto."
                 );
             }
 
@@ -229,7 +238,10 @@ namespace GaleriaArte.Web.Controllers
         }
 
         // =====================================================
-        // CARGAR CLIENTES Y OBRAS DISPONIBLES
+        // CARGAR VISITANTES EN GALERIA Y PRODUCTOS
+        //
+        // Solo se ofrecen los clientes con visita en curso,
+        // porque la factura pertenece a una visita.
         // =====================================================
 
         private async Task CargarDatosAsync(
@@ -237,11 +249,11 @@ namespace GaleriaArte.Web.Controllers
         {
             model.ClientesDisponibles =
                 await _facturaRepository
-                    .ObtenerClientesActivosAsync();
+                    .ObtenerClientesEnGaleriaAsync();
 
-            model.ObrasDisponibles =
+            model.ProductosDisponibles =
                 await _facturaRepository
-                    .ObtenerObrasDisponiblesAsync();
+                    .ObtenerProductosDisponiblesAsync();
         }
 
         // =====================================================

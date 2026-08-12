@@ -8,7 +8,7 @@
 
     <div>
         <h1>Ventas</h1>
-        <p>Registro de ventas de obras de arte.</p>
+        <p>Registro de compras hechas por los visitantes.</p>
     </div>
 
     <a asp-controller="Ventas"
@@ -53,7 +53,7 @@
                             class="form-select">
 
                         <option value="">
-                            Seleccione un cliente
+                            Seleccione un visitante
                         </option>
 
                         @foreach (var cliente in Model.ClientesDisponibles)
@@ -68,6 +68,22 @@
                     <span asp-validation-for="IdCliente"
                           class="text-danger">
                     </span>
+
+                    @if (Model.ClientesDisponibles.Count == 0)
+                    {
+                        <div class="secondary-text mt-2">
+                            No hay visitantes dentro de la galería.
+                            Registre la entrada en el módulo de Visitas
+                            antes de facturar.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="secondary-text mt-2">
+                            Solo aparecen los visitantes que están dentro
+                            de la galería. La compra queda ligada a su visita.
+                        </div>
+                    }
 
                 </div>
 
@@ -119,23 +135,24 @@
                 <div class="p-4 border-bottom">
 
                     <h3 class="mb-1">
-                        Obras disponibles
+                        Productos disponibles
                     </h3>
 
                     <p class="text-muted mb-3">
-                        Seleccione las obras que desea incluir.
+                        Marque los productos e indique la cantidad.
+                        El inventario se rebaja al registrar la venta.
                     </p>
 
-                    @if (Model.ObrasDisponibles.Count > 0)
+                    @if (Model.ProductosDisponibles.Count > 0)
                     {
                         <div class="position-relative">
 
                             <i class="bi bi-search search-icon"></i>
 
                             <input type="search"
-                                   id="buscarObra"
+                                   id="buscarProducto"
                                    class="form-control search-input"
-                                   placeholder="Buscar por nombre, código, artista o categoría..."
+                                   placeholder="Buscar por nombre, código o proveedor..."
                                    autocomplete="off" />
 
                         </div>
@@ -143,10 +160,10 @@
 
                 </div>
 
-                @if (Model.ObrasDisponibles.Count == 0)
+                @if (Model.ProductosDisponibles.Count == 0)
                 {
                     <div class="empty">
-                        No hay obras disponibles para vender.
+                        No hay productos con existencias para vender.
                     </div>
                 }
                 else
@@ -154,65 +171,92 @@
                     <div class="table-responsive">
 
                         <table class="data-table"
-                               id="tablaObras">
+                               id="tablaProductos">
 
                             <thead>
 
                                 <tr>
                                     <th>Seleccionar</th>
-                                    <th>Obra</th>
-                                    <th>Artista</th>
-                                    <th>Categoría</th>
+                                    <th>Producto</th>
+                                    <th>Proveedor</th>
+                                    <th>Existencias</th>
                                     <th>Precio</th>
+                                    <th>Cantidad</th>
                                 </tr>
 
                             </thead>
 
                             <tbody>
 
-                                @foreach (var obra in Model.ObrasDisponibles)
+                                @foreach (var producto in Model.ProductosDisponibles)
                                 {
                                     string textoBusqueda =
-                                        $"{obra.Nombre} {obra.Codigo} {obra.NombreArtista} {obra.NombreCategoria}";
+                                        $"{producto.Nombre} {producto.Codigo} {producto.NombreProveedor}";
 
-                                    <tr class="obra-row"
+                                    <tr class="producto-row"
                                         data-busqueda="@textoBusqueda">
 
                                         <td>
 
                                             <input type="checkbox"
-                                                   class="form-check-input obra-check"
-                                                   data-id="@obra.IdObra"
-                                                   data-nombre="@obra.Nombre"
-                                                   data-precio="@obra.ValorEstimado.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                                                   class="form-check-input producto-check"
+                                                   data-id="@producto.IdProducto"
+                                                   data-nombre="@producto.Nombre"
+                                                   data-stock="@producto.Stock"
+                                                   data-precio="@producto.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
 
                                         </td>
 
                                         <td>
 
                                             <div class="obra-name">
-                                                @obra.Nombre
+                                                @producto.Nombre
                                             </div>
 
                                             <div class="obra-code">
-                                                @obra.Codigo
+                                                @producto.Codigo
                                             </div>
 
                                         </td>
 
                                         <td>
-                                            @obra.NombreArtista
+                                            @producto.NombreProveedor
                                         </td>
 
                                         <td>
-                                            @obra.NombreCategoria
+
+                                            @if (producto.Stock <= producto.StockMinimo)
+                                            {
+                                                <span class="badge status-inactive">
+                                                    @producto.Stock
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge status-active">
+                                                    @producto.Stock
+                                                </span>
+                                            }
+
                                         </td>
 
                                         <td>
 
                                             <strong>
-                                                ₡@obra.ValorEstimado.ToString("N2")
+                                                ₡@producto.Precio.ToString("N2")
                                             </strong>
+
+                                        </td>
+
+                                        <td>
+
+                                            <input type="number"
+                                                   class="form-control producto-cantidad"
+                                                   value="1"
+                                                   min="1"
+                                                   max="@producto.Stock"
+                                                   style="width: 90px;"
+                                                   disabled />
 
                                         </td>
 
@@ -222,10 +266,10 @@
                                 <tr id="sinResultados"
                                     style="display: none;">
 
-                                    <td colspan="5">
+                                    <td colspan="6">
 
                                         <div class="empty">
-                                            No se encontraron obras con ese criterio.
+                                            No se encontraron productos con ese criterio.
                                         </div>
 
                                     </td>
@@ -254,7 +298,7 @@
                     </h3>
 
                     <p class="text-muted mb-0">
-                        Obras seleccionadas para la venta.
+                        Productos que se lleva el visitante.
                     </p>
 
                 </div>
@@ -266,7 +310,7 @@
 
                         <p class="text-muted"
                            id="mensajeVacio">
-                            No hay obras seleccionadas.
+                            No hay productos seleccionados.
                         </p>
 
                     </div>
@@ -312,7 +356,7 @@
                     <input asp-for="PorcentajeImpuesto"
                            type="hidden" />
 
-                    <div id="camposObras">
+                    <div id="camposProductos">
                     </div>
 
                     <button type="submit"
@@ -338,13 +382,13 @@
 
     <script>
         const checks =
-            document.querySelectorAll(".obra-check");
+            document.querySelectorAll(".producto-check");
 
-        const filasObras =
-            document.querySelectorAll(".obra-row");
+        const filasProductos =
+            document.querySelectorAll(".producto-row");
 
-        const buscarObra =
-            document.getElementById("buscarObra");
+        const buscarProducto =
+            document.getElementById("buscarProducto");
 
         const sinResultados =
             document.getElementById("sinResultados");
@@ -364,8 +408,8 @@
         const totalTexto =
             document.getElementById("totalTexto");
 
-        const camposObras =
-            document.getElementById("camposObras");
+        const camposProductos =
+            document.getElementById("camposProductos");
 
         const btnRegistrar =
             document.getElementById("btnRegistrar");
@@ -378,17 +422,17 @@
                 .trim();
         }
 
-        function filtrarObras() {
-            if (!buscarObra) {
+        function filtrarProductos() {
+            if (!buscarProducto) {
                 return;
             }
 
             const termino =
-                normalizarTexto(buscarObra.value);
+                normalizarTexto(buscarProducto.value);
 
             let cantidadVisible = 0;
 
-            filasObras.forEach(fila => {
+            filasProductos.forEach(fila => {
                 const contenido =
                     normalizarTexto(
                         fila.dataset.busqueda ?? ""
@@ -429,7 +473,7 @@
                     .filter(check => check.checked);
 
             detalleSeleccionado.innerHTML = "";
-            camposObras.innerHTML = "";
+            camposProductos.innerHTML = "";
 
             let subtotal = 0;
 
@@ -453,7 +497,17 @@
                         const precio =
                             Number(check.dataset.precio);
 
-                        subtotal += precio;
+                        const campoCantidad =
+                            check.closest("tr")
+                                 .querySelector(".producto-cantidad");
+
+                        const cantidad =
+                            Math.max(1, Number(campoCantidad.value) || 1);
+
+                        const importe =
+                            precio * cantidad;
+
+                        subtotal += importe;
 
                         const fila =
                             document.createElement("div");
@@ -461,20 +515,20 @@
                         fila.className =
                             "d-flex justify-content-between gap-3 mb-2";
 
-                        const nombreObra =
+                        const nombreProducto =
                             document.createElement("span");
 
-                        nombreObra.textContent =
-                            nombre;
+                        nombreProducto.textContent =
+                            cantidad + " x " + nombre;
 
-                        const precioObra =
+                        const importeProducto =
                             document.createElement("strong");
 
-                        precioObra.textContent =
-                            formatoMoneda(precio);
+                        importeProducto.textContent =
+                            formatoMoneda(importe);
 
-                        fila.appendChild(nombreObra);
-                        fila.appendChild(precioObra);
+                        fila.appendChild(nombreProducto);
+                        fila.appendChild(importeProducto);
 
                         detalleSeleccionado.appendChild(
                             fila
@@ -487,29 +541,29 @@
                             "hidden";
 
                         campoId.name =
-                            `Obras[${indice}].IdObra`;
+                            `Productos[${indice}].IdProducto`;
 
                         campoId.value =
                             id;
 
-                        const campoPrecio =
+                        const campoCantidadOculto =
                             document.createElement("input");
 
-                        campoPrecio.type =
+                        campoCantidadOculto.type =
                             "hidden";
 
-                        campoPrecio.name =
-                            `Obras[${indice}].PrecioUnitario`;
+                        campoCantidadOculto.name =
+                            `Productos[${indice}].Cantidad`;
 
-                        campoPrecio.value =
-                            precio;
+                        campoCantidadOculto.value =
+                            cantidad;
 
-                        camposObras.appendChild(
+                        camposProductos.appendChild(
                             campoId
                         );
 
-                        camposObras.appendChild(
-                            campoPrecio
+                        camposProductos.appendChild(
+                            campoCantidadOculto
                         );
                     }
                 );
@@ -534,16 +588,41 @@
         }
 
         checks.forEach(check => {
-            check.addEventListener(
-                "change",
-                actualizarResumen
-            );
+
+            const campoCantidad =
+                check.closest("tr")
+                     .querySelector(".producto-cantidad");
+
+            check.addEventListener("change", () => {
+
+                // La cantidad solo se habilita si el producto
+                // esta marcado.
+                campoCantidad.disabled = !check.checked;
+
+                if (check.checked && Number(campoCantidad.value) < 1) {
+                    campoCantidad.value = 1;
+                }
+
+                actualizarResumen();
+            });
+
+            campoCantidad.addEventListener("input", () => {
+
+                const maximo =
+                    Number(check.dataset.stock);
+
+                if (Number(campoCantidad.value) > maximo) {
+                    campoCantidad.value = maximo;
+                }
+
+                actualizarResumen();
+            });
         });
 
-        if (buscarObra) {
-            buscarObra.addEventListener(
+        if (buscarProducto) {
+            buscarProducto.addEventListener(
                 "input",
-                filtrarObras
+                filtrarProductos
             );
         }
 
