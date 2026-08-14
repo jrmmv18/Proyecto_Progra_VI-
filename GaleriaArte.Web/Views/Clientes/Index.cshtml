@@ -11,11 +11,23 @@
         <p>Administración de los clientes registrados en la galería.</p>
     </div>
 
-    <a asp-controller="Clientes"
-       asp-action="Create"
-       class="btn-primary">
-        + Nuevo cliente
-    </a>
+    <div class="table-actions">
+
+        @* Un visitante puede ser un cliente potencial, por eso
+           su entrada se marca desde aqui mismo. *@
+        <a asp-controller="Visitas"
+           asp-action="Ingresar"
+           class="btn-secondary">
+            Ingresar visitante
+        </a>
+
+        <a asp-controller="Clientes"
+           asp-action="Create"
+           class="btn-primary">
+            + Nuevo cliente
+        </a>
+
+    </div>
 
 </div>
 

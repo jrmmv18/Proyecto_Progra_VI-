@@ -5,16 +5,25 @@
   Devuelve los totales que muestran las tarjetas del panel
   principal. No modifica datos.
 
-  CAMBIO:
-  Se agregan TotalVisitas y VisitasEnCurso para la tarjeta
-  del modulo de Visitas. Las columnas anteriores se
-  mantienen igual para no afectar al resto del panel.
+  Ventas y Mantenimientos venian con el valor cero fijo, asi
+  que sus tarjetas nunca mostraban nada aunque hubiera
+  registros. Ahora se cuentan de verdad.
+
+  Ventas cuenta solo las facturas vigentes: las anuladas no
+  suman, igual que una obra inactiva no suma en su tarjeta.
 =========================================================*/
 
 CREATE OR ALTER PROCEDURE sp_Dashboard_Resumen
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @IdAnulada INT =
+    (
+        SELECT TOP 1 IdEstadoFactura
+        FROM dbo.EstadoFactura
+        WHERE Nombre = N'Anulada'
+    );
 
     SELECT
 
@@ -34,9 +43,14 @@ BEGIN
          FROM Proveedores
          WHERE Estado = 1) AS TotalProveedores,
 
-        0 AS TotalVentas,
+        -- Facturas vigentes, sin contar las anuladas
+        (SELECT COUNT(*)
+         FROM dbo.Facturas
+         WHERE @IdAnulada IS NULL
+            OR IdEstadoFactura <> @IdAnulada) AS TotalVentas,
 
-        0 AS TotalMantenimientos,
+        (SELECT COUNT(*)
+         FROM dbo.Mantenimiento) AS TotalMantenimientos,
 
         -- Visitas registradas en total
         (SELECT COUNT(*)

@@ -129,6 +129,72 @@ namespace GaleriaArte.Web.Controllers
         }
 
         // =====================================================
+        // INGRESAR UN CLIENTE QUE YA EXISTE
+        //
+        // Se llega desde el modulo de Clientes: el visitante
+        // ya esta registrado, solo se escoge de la lista y se
+        // marca su entrada.
+        // =====================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Ingresar(int? id)
+        {
+            await CargarClientesAsync(id);
+
+            return View(new Visita
+            {
+                IdCliente = id ?? 0,
+                FechaIngreso = DateTime.Now
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Ingresar(Visita visita)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarClientesAsync(visita.IdCliente);
+
+                return View(visita);
+            }
+
+            int idUsuario = ObtenerIdUsuario();
+
+            try
+            {
+                await _visitaRepository.RegistrarEntradaAsync(
+                    visita,
+                    idUsuario);
+
+                TempData["Mensaje"] =
+                    "Entrada del visitante registrada correctamente.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (SqlException ex)
+            {
+                await CargarClientesAsync(visita.IdCliente);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    ex.Message);
+
+                return View(visita);
+            }
+            catch (Exception)
+            {
+                await CargarClientesAsync(visita.IdCliente);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ocurrió un error inesperado al registrar la entrada.");
+
+                return View(visita);
+            }
+        }
+
+        // =====================================================
         // REGISTRAR SALIDA DEL VISITANTE
         // =====================================================
 
