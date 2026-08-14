@@ -1,104 +1,185 @@
-@model GaleriaArte.Web.Models.Visita
+@model GaleriaArte.Web.Models.VisitaCrearViewModel
 
 @{
     ViewData["Title"] = "Registrar entrada";
 }
 
-<div class="page-header">
+<div class="page-header page-header-actions">
 
-    <h1>Registrar entrada</h1>
+    <div>
+        <h1>Registrar entrada</h1>
+        <p>Registro del visitante y su entrada a la galería.</p>
+    </div>
 
-    <p>
-        Registre la entrada de un visitante a la galería.
-    </p>
+    <a asp-controller="Visitas"
+       asp-action="Index"
+       class="btn-secondary">
+        Volver
+    </a>
 
 </div>
 
-<div class="form-card">
+<div class="table-card">
 
-    <form asp-action="Create"
-          method="post">
+    <div class="p-4">
 
-        @Html.AntiForgeryToken()
+        <form asp-controller="Visitas"
+              asp-action="Create"
+              method="post">
 
-        <div asp-validation-summary="ModelOnly"
-             class="validation-summary">
-        </div>
+            @Html.AntiForgeryToken()
 
-        <div class="form-grid">
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
 
-            <div class="form-group">
+            <div class="row">
 
-                <label asp-for="IdCliente"></label>
+                <div class="col-md-6 mb-3">
 
-                <select asp-for="IdCliente"
-                        asp-items="ViewBag.Clientes"
-                        class="form-control">
+                    <label asp-for="Nombre"
+                           class="form-label">
+                    </label>
 
-                    <option value="">
-                        Seleccione un visitante
-                    </option>
+                    <input asp-for="Nombre"
+                           class="form-control"
+                           autocomplete="off" />
 
-                </select>
+                    <span asp-validation-for="Nombre"
+                          class="text-danger">
+                    </span>
 
-                <span asp-validation-for="IdCliente"
-                      class="field-validation">
-                </span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Apellido"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Apellido"
+                           class="form-control"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Apellido"
+                          class="text-danger">
+                    </span>
+
+                </div>
 
             </div>
 
-            <div class="form-group">
+            <div class="row">
 
-                <label asp-for="FechaIngreso"></label>
+                <div class="col-md-6 mb-3">
 
-                <input asp-for="FechaIngreso"
-                       type="datetime-local"
-                       class="form-control" />
+                    <label asp-for="Telefono"
+                           class="form-label">
+                    </label>
 
-                <span asp-validation-for="FechaIngreso"
-                      class="field-validation">
-                </span>
+                    <input asp-for="Telefono"
+                           class="form-control"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Telefono"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="Correo"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Correo"
+                           class="form-control"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Correo"
+                          class="text-danger">
+                    </span>
+
+                </div>
 
             </div>
 
-            <div class="form-group full-width">
+            <div class="row">
 
-                <label asp-for="Observaciones"></label>
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="FechaIngreso"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="FechaIngreso"
+                           type="datetime-local"
+                           class="form-control" />
+
+                    <span asp-validation-for="FechaIngreso"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label asp-for="FechaSalida"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="FechaSalida"
+                           type="datetime-local"
+                           class="form-control" />
+
+                    <span asp-validation-for="FechaSalida"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="mb-4">
+
+                <label asp-for="Observaciones"
+                       class="form-label">
+                </label>
 
                 <textarea asp-for="Observaciones"
-                          rows="5"
                           class="form-control"
-                          placeholder="Observaciones de la visita (opcional)">
+                          rows="4">
                 </textarea>
 
                 <span asp-validation-for="Observaciones"
-                      class="field-validation">
+                      class="text-danger">
                 </span>
 
             </div>
 
-        </div>
+            <div class="d-flex gap-2">
 
-        <div class="form-actions">
+                <button type="submit"
+                        class="btn-primary">
+                    Registrar entrada
+                </button>
 
-            <a asp-action="Index"
-               class="btn-secondary">
-                Cancelar
-            </a>
+                <a asp-controller="Visitas"
+                   asp-action="Index"
+                   class="btn-secondary">
+                    Cancelar
+                </a>
 
-            <button type="submit"
-                    class="btn-primary">
-                Registrar entrada
-            </button>
+            </div>
 
-        </div>
+        </form>
 
-    </form>
+    </div>
 
 </div>
 
-@section Scripts {
-
+@section Scripts
+{
     <partial name="_ValidationScriptsPartial" />
-
 }

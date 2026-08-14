@@ -77,6 +77,113 @@ namespace GaleriaArte.Web.Data
         }
 
         // =====================================================
+        // REGISTRAR VISITANTE Y SU ENTRADA
+        // Procedimientos: sp_Clientes_Crear
+        //                 sp_Visitas_RegistrarEntrada
+        //                 sp_Visitas_RegistrarSalida
+        //
+        // El visitante se da de alta en el mismo paso que su
+        // entrada. Si tambien se indica la salida, se sella de
+        // una vez.
+        // =====================================================
+
+        public async Task<int> RegistrarVisitanteAsync(
+            VisitaCrearViewModel modelo,
+            int idUsuario)
+        {
+            int idCliente =
+                await CrearClienteAsync(modelo, idUsuario);
+
+            Visita visita = new()
+            {
+                IdCliente = idCliente,
+                FechaIngreso = modelo.FechaIngreso,
+                Observaciones = modelo.Observaciones
+            };
+
+            int idVisita =
+                await RegistrarEntradaAsync(visita, idUsuario);
+
+            if (modelo.FechaSalida.HasValue)
+            {
+                await RegistrarSalidaAsync(
+                    idVisita,
+                    modelo.FechaSalida.Value,
+                    idUsuario);
+            }
+
+            return idVisita;
+        }
+
+        // =====================================================
+        // CREAR EL VISITANTE
+        // Procedimiento: sp_Clientes_Crear
+        // =====================================================
+
+        private async Task<int> CrearClienteAsync(
+            VisitaCrearViewModel modelo,
+            int idUsuario)
+        {
+            await using SqlConnection connection =
+                _databaseConnection.CreateConnection();
+
+            await connection.OpenAsync();
+
+            await using SqlCommand command =
+                new SqlCommand("sp_Clientes_Crear", connection);
+
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.Add(
+                "@Nombre",
+                SqlDbType.NVarChar,
+                50
+            ).Value = modelo.Nombre;
+
+            command.Parameters.Add(
+                "@Apellido",
+                SqlDbType.NVarChar,
+                50
+            ).Value = modelo.Apellido;
+
+            command.Parameters.Add(
+                "@Telefono",
+                SqlDbType.VarChar,
+                20
+            ).Value =
+                string.IsNullOrWhiteSpace(modelo.Telefono)
+                    ? DBNull.Value
+                    : modelo.Telefono;
+
+            command.Parameters.Add(
+                "@Correo",
+                SqlDbType.VarChar,
+                100
+            ).Value =
+                string.IsNullOrWhiteSpace(modelo.Correo)
+                    ? DBNull.Value
+                    : modelo.Correo;
+
+            // El visitante no lleva direccion: ese espacio del
+            // formulario lo ocupan las observaciones de la visita.
+            command.Parameters.Add(
+                "@Direccion",
+                SqlDbType.NVarChar,
+                200
+            ).Value = DBNull.Value;
+
+            command.Parameters.Add(
+                "@IdUsuario",
+                SqlDbType.Int
+            ).Value = idUsuario;
+
+            object? resultado =
+                await command.ExecuteScalarAsync();
+
+            return Convert.ToInt32(resultado);
+        }
+
+        // =====================================================
         // REGISTRAR ENTRADA DEL VISITANTE
         // Procedimiento: sp_Visitas_RegistrarEntrada
         // =====================================================

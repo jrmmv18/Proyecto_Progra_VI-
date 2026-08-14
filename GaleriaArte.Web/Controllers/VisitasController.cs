@@ -66,11 +66,9 @@ namespace GaleriaArte.Web.Controllers
         // =====================================================
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            await CargarClientesAsync();
-
-            return View(new Visita
+            return View(new VisitaCrearViewModel
             {
                 FechaIngreso = DateTime.Now
             });
@@ -82,47 +80,51 @@ namespace GaleriaArte.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Visita visita)
+        public async Task<IActionResult> Create(
+            VisitaCrearViewModel modelo)
         {
+            // La salida no puede ser anterior a la entrada
+            if (modelo.FechaSalida.HasValue &&
+                modelo.FechaSalida.Value < modelo.FechaIngreso)
+            {
+                ModelState.AddModelError(
+                    nameof(modelo.FechaSalida),
+                    "La salida no puede ser anterior a la entrada.");
+            }
+
             if (!ModelState.IsValid)
             {
-                await CargarClientesAsync(visita.IdCliente);
-
-                return View(visita);
+                return View(modelo);
             }
 
             int idUsuario = ObtenerIdUsuario();
 
             try
             {
-                await _visitaRepository.RegistrarEntradaAsync(
-                    visita,
+                await _visitaRepository.RegistrarVisitanteAsync(
+                    modelo,
                     idUsuario);
 
                 TempData["Mensaje"] =
-                    "Entrada del visitante registrada correctamente.";
+                    "Visitante y entrada registrados correctamente.";
 
                 return RedirectToAction(nameof(Index));
             }
             catch (SqlException ex)
             {
-                await CargarClientesAsync(visita.IdCliente);
-
                 ModelState.AddModelError(
                     string.Empty,
                     ex.Message);
 
-                return View(visita);
+                return View(modelo);
             }
             catch (Exception)
             {
-                await CargarClientesAsync(visita.IdCliente);
-
                 ModelState.AddModelError(
                     string.Empty,
                     "Ocurrió un error inesperado al registrar la entrada.");
 
-                return View(visita);
+                return View(modelo);
             }
         }
 
