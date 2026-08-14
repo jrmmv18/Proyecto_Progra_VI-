@@ -134,8 +134,7 @@ namespace GaleriaArte.Web.Controllers
 
             return View(new Visita
             {
-                IdCliente = id ?? 0,
-                FechaIngreso = DateTime.Now
+                IdCliente = id ?? 0
             });
         }
 
@@ -143,6 +142,12 @@ namespace GaleriaArte.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Ingresar(Visita visita)
         {
+            // La hora de entrada no se pide: es el momento en que
+            // se marca el ingreso.
+            visita.FechaIngreso = DateTime.Now;
+
+            ModelState.Remove(nameof(visita.FechaIngreso));
+
             if (!ModelState.IsValid)
             {
                 await CargarClientesAsync(visita.IdCliente);
