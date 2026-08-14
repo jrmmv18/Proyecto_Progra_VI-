@@ -80,11 +80,9 @@ namespace GaleriaArte.Web.Data
         // REGISTRAR VISITANTE Y SU ENTRADA
         // Procedimientos: sp_Clientes_Crear
         //                 sp_Visitas_RegistrarEntrada
-        //                 sp_Visitas_RegistrarSalida
         //
         // El visitante se da de alta en el mismo paso que su
-        // entrada. Si tambien se indica la salida, se sella de
-        // una vez.
+        // entrada. La salida se marca despues, desde el listado.
         // =====================================================
 
         public async Task<int> RegistrarVisitanteAsync(
@@ -101,18 +99,7 @@ namespace GaleriaArte.Web.Data
                 Observaciones = modelo.Observaciones
             };
 
-            int idVisita =
-                await RegistrarEntradaAsync(visita, idUsuario);
-
-            if (modelo.FechaSalida.HasValue)
-            {
-                await RegistrarSalidaAsync(
-                    idVisita,
-                    modelo.FechaSalida.Value,
-                    idUsuario);
-            }
-
-            return idVisita;
+            return await RegistrarEntradaAsync(visita, idUsuario);
         }
 
         // =====================================================

@@ -83,15 +83,6 @@ namespace GaleriaArte.Web.Controllers
         public async Task<IActionResult> Create(
             VisitaCrearViewModel modelo)
         {
-            // La salida no puede ser anterior a la entrada
-            if (modelo.FechaSalida.HasValue &&
-                modelo.FechaSalida.Value < modelo.FechaIngreso)
-            {
-                ModelState.AddModelError(
-                    nameof(modelo.FechaSalida),
-                    "La salida no puede ser anterior a la entrada.");
-            }
-
             if (!ModelState.IsValid)
             {
                 return View(modelo);

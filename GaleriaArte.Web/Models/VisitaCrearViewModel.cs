@@ -36,7 +36,7 @@ namespace GaleriaArte.Web.Models
         [Display(Name = "Fecha y hora de entrada")]
         public DateTime FechaIngreso { get; set; } = DateTime.Now;
 
-        [Display(Name = "Fecha y hora de salida")]
-        public DateTime? FechaSalida { get; set; }
+        // La salida no se pide aqui: se marca despues, desde el
+        // listado, con el boton Registrar salida.
     }
 }
