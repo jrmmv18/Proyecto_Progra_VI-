@@ -12,11 +12,21 @@ namespace GaleriaArte.Web.Models
         [Display(Name = "Visitante")]
         public int IdCliente { get; set; }
 
+        // El formato deja el campo en dia, mes, año, hora y minuto.
+        // Sin esto el navegador muestra tambien segundos y milesimas.
         [Required(ErrorMessage = "La fecha de entrada es obligatoria.")]
         [Display(Name = "Fecha y hora de entrada")]
+        [DataType(DataType.DateTime)]
+        [DisplayFormat(
+            DataFormatString = "{0:yyyy-MM-ddTHH:mm}",
+            ApplyFormatInEditMode = true)]
         public DateTime FechaIngreso { get; set; }
 
         [Display(Name = "Fecha y hora de salida")]
+        [DataType(DataType.DateTime)]
+        [DisplayFormat(
+            DataFormatString = "{0:yyyy-MM-ddTHH:mm}",
+            ApplyFormatInEditMode = true)]
         public DateTime? FechaSalida { get; set; }
 
         [StringLength(500)]
